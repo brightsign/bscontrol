@@ -1,0 +1,25 @@
+{
+  "networkName": "Production Network",
+  "username": "admin@example.com",
+  "packageName": "retail-display-v3",
+  "setupType": "standalone",
+  "timeZone": "America/Chicago",
+  "bsnGroupName": "Retail Stores",
+  "network": {
+    "timeServers": [
+      "http://time.brightsignnetwork.com",
+      "http://time.nist.gov"
+    ],
+    "interfaces": [
+      {
+        "id": "wired_eth0",
+        "name": "eth0",
+        "type": "Ethernet",
+        "proto": "DHCPv4",
+        "contentDownloadEnabled": true,
+        "healthReportingEnabled": true
+      }
+    ]
+  },
+  "timeout": 30
+}

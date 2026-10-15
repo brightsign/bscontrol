@@ -1,0 +1,163 @@
+{
+  "_comment": "Comprehensive B-Deploy v3 Setup Configuration - All Available Parameters",
+  "_comment_note": "This example shows ALL available parameters. Most are optional. Remove _comment fields before use.",
+
+  "networkName": "Production Network",
+  "_comment_networkName": "BSN.cloud network name (REQUIRED)",
+
+  "username": "admin@example.com",
+  "_comment_username": "BSN.cloud username/email (REQUIRED)",
+
+  "packageName": "comprehensive-setup-v1",
+  "_comment_packageName": "Unique setup identifier (REQUIRED)",
+
+  "setupType": "bsn",
+  "_comment_setupType": "One of: standalone, bsn, sfn, lfn, partnerApplication, localToBsn, legacyLfn (REQUIRED)",
+
+  "timeZone": "America/New_York",
+  "_comment_timeZone": "Player timezone (OPTIONAL, defaults to America/New_York)",
+
+  "bsnGroupName": "Production Displays",
+  "_comment_bsnGroupName": "BSN group for organization (OPTIONAL, defaults to 'Default')",
+
+  "deviceName": "Store Display #1",
+  "_comment_deviceName": "Human-readable device name (OPTIONAL)",
+
+  "deviceDescription": "Main entrance display with full monitoring",
+  "_comment_deviceDescription": "Device description for inventory management (OPTIONAL)",
+
+  "bsnCloudEnabled": true,
+  "_comment_bsnCloudEnabled": "Enable BSN.cloud management features (OPTIONAL, setupType-dependent)",
+
+  "remoteDwsEnabled": true,
+  "_comment_remoteDwsEnabled": "Enable Remote Diagnostic Web Server for remote access (OPTIONAL)",
+
+  "dwsEnabled": false,
+  "_comment_dwsEnabled": "Enable Local Diagnostic Web Server on player (OPTIONAL)",
+
+  "lwsEnabled": true,
+  "_comment_lwsEnabled": "Enable Local Web Server for presentation content (OPTIONAL)",
+
+  "partnerApplicationUrl": "",
+  "_comment_partnerApplicationUrl": "URL for partner CMS application (REQUIRED for partnerApplication setupType)",
+
+  "inheritNetworkProperties": false,
+  "_comment_inheritNetworkProperties": "Inherit network settings from previous configuration (OPTIONAL, legacy)",
+
+  "_comment_remoteSnapshot": "=== REMOTE SNAPSHOT CONFIGURATION ===",
+  "enableRemoteSnapshot": true,
+  "_comment_enableRemoteSnapshot": "Enable remote screen capture functionality (OPTIONAL)",
+
+  "remoteSnapshotInterval": 15,
+  "_comment_remoteSnapshotInterval": "Interval in minutes between snapshots (OPTIONAL)",
+
+  "remoteSnapshotMaxImages": 5,
+  "_comment_remoteSnapshotMaxImages": "Maximum number of snapshots to store (OPTIONAL)",
+
+  "remoteSnapshotJpegQualityLevel": 50,
+  "_comment_remoteSnapshotJpegQualityLevel": "JPEG quality level 1-100 (OPTIONAL)",
+
+  "remoteSnapshotScreenOrientation": "Landscape",
+  "_comment_remoteSnapshotScreenOrientation": "Orientation: Landscape, Portrait, ReversePortrait, ReverseLandscape (OPTIONAL)",
+
+  "remoteSnapshotHandlerUrl": "https://api.example.com/snapshots",
+  "_comment_remoteSnapshotHandlerUrl": "URL endpoint to receive snapshot uploads (OPTIONAL)",
+
+  "_comment_logging": "=== LOGGING CONFIGURATION ===",
+  "playbackLoggingEnabled": true,
+  "_comment_playbackLoggingEnabled": "Log content playback events (OPTIONAL)",
+
+  "eventLoggingEnabled": true,
+  "_comment_eventLoggingEnabled": "Log system events (OPTIONAL)",
+
+  "diagnosticLoggingEnabled": true,
+  "_comment_diagnosticLoggingEnabled": "Log diagnostic information (OPTIONAL)",
+
+  "stateLoggingEnabled": true,
+  "_comment_stateLoggingEnabled": "Log state transitions (OPTIONAL)",
+
+  "variableLoggingEnabled": false,
+  "_comment_variableLoggingEnabled": "Log variable changes (OPTIONAL)",
+
+  "uploadLogFilesAtBoot": true,
+  "_comment_uploadLogFilesAtBoot": "Upload log files when player boots (OPTIONAL)",
+
+  "uploadLogFilesAtSpecificTime": true,
+  "_comment_uploadLogFilesAtSpecificTime": "Upload logs at scheduled time (OPTIONAL)",
+
+  "uploadLogFilesTime": 3,
+  "_comment_uploadLogFilesTime": "Time in hours (0-23) for scheduled log upload (OPTIONAL)",
+
+  "logHandlerUrl": "https://api.example.com/logs",
+  "_comment_logHandlerUrl": "Custom endpoint for log uploads (OPTIONAL)",
+
+  "_comment_network": "=== NETWORK CONFIGURATION ===",
+  "network": {
+    "timeServers": [
+      "http://time.brightsignnetwork.com",
+      "http://time.nist.gov"
+    ],
+    "_comment_timeServers": "NTP time servers for clock synchronization (OPTIONAL)",
+
+    "proxy": null,
+    "_comment_proxy": "Proxy server configuration: http://proxy.example.com:8080 (OPTIONAL)",
+
+    "proxyBypass": null,
+    "_comment_proxyBypass": "Comma-separated list of hosts to bypass proxy (OPTIONAL)",
+
+    "interfaces": [
+      {
+        "_comment_interface": "=== ETHERNET INTERFACE (PRIMARY) ===",
+        "id": "wired_eth0",
+        "_comment_id": "Unique interface identifier (REQUIRED)",
+
+        "name": "eth0",
+        "_comment_name": "Linux network interface name (REQUIRED)",
+
+        "type": "Ethernet",
+        "_comment_type": "Interface type: Ethernet, WiFi, or other (REQUIRED)",
+
+        "proto": "DHCPv4",
+        "_comment_proto": "Protocol: DHCPv4, DHCPv6, Static (REQUIRED)",
+
+        "ip": [],
+        "_comment_ip": "Static IP addresses (for Static proto): ['192.168.1.100'] (OPTIONAL)",
+
+        "gateway": null,
+        "_comment_gateway": "Gateway IP for static configuration: '192.168.1.1' (OPTIONAL)",
+
+        "dns": [],
+        "_comment_dns": "DNS servers for static configuration: ['8.8.8.8', '8.8.4.4'] (OPTIONAL)",
+
+        "contentDownloadEnabled": true,
+        "_comment_contentDownloadEnabled": "Allow content downloads over this interface (OPTIONAL)",
+
+        "textFeedsDownloadEnabled": true,
+        "_comment_textFeedsDownloadEnabled": "Allow text feed downloads (OPTIONAL)",
+
+        "mediaFeedsDownloadEnabled": true,
+        "_comment_mediaFeedsDownloadEnabled": "Allow media feed downloads (OPTIONAL)",
+
+        "healthReportingEnabled": true,
+        "_comment_healthReportingEnabled": "Allow health/status reporting (OPTIONAL)",
+
+        "logsUploadEnabled": true,
+        "_comment_logsUploadEnabled": "Allow log file uploads (OPTIONAL)",
+
+        "rateLimitDuringInitialDownloads": 0,
+        "_comment_rateLimitDuringInitialDownloads": "Bandwidth limit in kbps during initial content download, 0=unlimited (OPTIONAL)",
+
+        "rateLimitInsideContentDownloadWindow": 0,
+        "_comment_rateLimitInsideContentDownloadWindow": "Bandwidth limit during scheduled download window, 0=unlimited (OPTIONAL)",
+
+        "rateLimitOutsideContentDownloadWindow": null,
+        "_comment_rateLimitOutsideContentDownloadWindow": "Bandwidth limit outside download window, null=no limit (OPTIONAL)"
+      }
+    ]
+  },
+
+  "timeout": 30,
+  "_comment_timeout": "HTTP request timeout in seconds (OPTIONAL, program-specific, defaults to 30)",
+
+  "_comment_deviceToken": "NOTE: Device registration tokens are AUTOMATICALLY GENERATED via BSN.cloud Provisioning API. Do NOT provide bsnDeviceRegistrationTokenEntity in config - it will be created programmatically with 2-year validity and 'cert' scope."
+}

@@ -1,0 +1,77 @@
+{
+  "networkName": "Mobile Network",
+  "username": "admin@example.com",
+  "packageName": "wifi-mobile-display-v1",
+  "setupType": "bsn",
+  "timeZone": "America/Los_Angeles",
+  "bsnGroupName": "WiFi Displays",
+  "deviceName": "Mobile Kiosk Display",
+  "deviceDescription": "Wireless kiosk with WiFi connectivity",
+  "bsnCloudEnabled": true,
+  "remoteDwsEnabled": true,
+  "dwsEnabled": false,
+  "lwsEnabled": true,
+  "playbackLoggingEnabled": true,
+  "eventLoggingEnabled": true,
+  "diagnosticLoggingEnabled": true,
+  "stateLoggingEnabled": true,
+  "uploadLogFilesAtBoot": true,
+  "network": {
+    "timeServers": [
+      "http://time.brightsignnetwork.com"
+    ],
+    "interfaces": [
+      {
+        "id": "wired_eth0",
+        "name": "eth0",
+        "type": "Ethernet",
+        "proto": "DHCPv4",
+        "contentDownloadEnabled": true,
+        "textFeedsDownloadEnabled": true,
+        "mediaFeedsDownloadEnabled": true,
+        "healthReportingEnabled": true,
+        "logsUploadEnabled": true
+      },
+      {
+        "id": "wireless_wlan0",
+        "name": "wlan0",
+        "type": "WiFi",
+        "proto": "DHCPv4",
+        "ip": [],
+        "gateway": null,
+        "dns": [],
+        "contentDownloadEnabled": true,
+        "textFeedsDownloadEnabled": true,
+        "mediaFeedsDownloadEnabled": true,
+        "healthReportingEnabled": true,
+        "logsUploadEnabled": true,
+        "rateLimitDuringInitialDownloads": 5000,
+        "rateLimitInsideContentDownloadWindow": 10000,
+        "rateLimitOutsideContentDownloadWindow": 2000,
+        "ssid": "Corporate-WiFi-5GHz",
+        "passphrase": "",
+        "security": {
+          "authentication": {
+            "mode": "Shared",
+            "passphrase": "SecureWiFiPassword123!"
+          },
+          "encryption": {
+            "mode": "TKIP, CCMP"
+          }
+        },
+        "wpaSettings": {
+          "enableWPAEnterpriseAuthentication": false,
+          "wpaEnterpriseVariant": "WPAEnterpriseEapTls",
+          "eapCertificateType": "WPAEapTlsPKCS",
+          "eapCertificateFile": null,
+          "eapCertificatePassphrase": "",
+          "eapPemOrDerKeyFile": null,
+          "peapUsername": "",
+          "peapPassphrase": "",
+          "caCertificateFile": null
+        }
+      }
+    ]
+  },
+  "timeout": 60
+}

@@ -1,0 +1,59 @@
+{
+  "networkName": "Production Network",
+  "username": "admin@example.com",
+  "packageName": "comprehensive-setup-v1",
+  "setupType": "bsn",
+  "timeZone": "America/New_York",
+  "bsnGroupName": "Production Displays",
+  "deviceName": "Store Display #1",
+  "deviceDescription": "Main entrance display with full monitoring",
+  "bsnCloudEnabled": true,
+  "remoteDwsEnabled": true,
+  "dwsEnabled": false,
+  "lwsEnabled": true,
+  "partnerApplicationUrl": "",
+  "inheritNetworkProperties": false,
+  "enableRemoteSnapshot": true,
+  "remoteSnapshotInterval": 15,
+  "remoteSnapshotMaxImages": 5,
+  "remoteSnapshotJpegQualityLevel": 50,
+  "remoteSnapshotScreenOrientation": "Landscape",
+  "remoteSnapshotHandlerUrl": "https://api.example.com/snapshots",
+  "playbackLoggingEnabled": true,
+  "eventLoggingEnabled": true,
+  "diagnosticLoggingEnabled": true,
+  "stateLoggingEnabled": true,
+  "variableLoggingEnabled": false,
+  "uploadLogFilesAtBoot": true,
+  "uploadLogFilesAtSpecificTime": true,
+  "uploadLogFilesTime": 3,
+  "logHandlerUrl": "https://api.example.com/logs",
+  "network": {
+    "timeServers": [
+      "http://time.brightsignnetwork.com",
+      "http://time.nist.gov"
+    ],
+    "proxy": null,
+    "proxyBypass": null,
+    "interfaces": [
+      {
+        "id": "wired_eth0",
+        "name": "eth0",
+        "type": "Ethernet",
+        "proto": "DHCPv4",
+        "ip": [],
+        "gateway": null,
+        "dns": [],
+        "contentDownloadEnabled": true,
+        "textFeedsDownloadEnabled": true,
+        "mediaFeedsDownloadEnabled": true,
+        "healthReportingEnabled": true,
+        "logsUploadEnabled": true,
+        "rateLimitDuringInitialDownloads": 0,
+        "rateLimitInsideContentDownloadWindow": 0,
+        "rateLimitOutsideContentDownloadWindow": null
+      }
+    ]
+  },
+  "timeout": 30
+}

@@ -1,0 +1,162 @@
+{
+  "_comment": "WiFi-Enabled B-Deploy v3 Setup Configuration Example",
+  "_comment_note": "This example demonstrates WiFi configuration with both wired and wireless interfaces. Remove _comment fields before use.",
+
+  "networkName": "Mobile Network",
+  "username": "admin@example.com",
+  "packageName": "wifi-mobile-display-v1",
+  "setupType": "bsn",
+  "timeZone": "America/Los_Angeles",
+  "bsnGroupName": "WiFi Displays",
+
+  "deviceName": "Mobile Kiosk Display",
+  "deviceDescription": "Wireless kiosk with WiFi connectivity",
+
+  "bsnCloudEnabled": true,
+  "remoteDwsEnabled": true,
+  "dwsEnabled": false,
+  "lwsEnabled": true,
+
+  "_comment_logging": "Enable comprehensive logging for WiFi deployments",
+  "playbackLoggingEnabled": true,
+  "eventLoggingEnabled": true,
+  "diagnosticLoggingEnabled": true,
+  "stateLoggingEnabled": true,
+  "uploadLogFilesAtBoot": true,
+
+  "_comment_network": "=== MULTI-INTERFACE NETWORK CONFIGURATION ===",
+  "_comment_network_note": "Interfaces are prioritized in order: first interface has highest priority",
+  "network": {
+    "timeServers": [
+      "http://time.brightsignnetwork.com"
+    ],
+
+    "interfaces": [
+      {
+        "_comment": "=== PRIMARY: WIRED ETHERNET (Highest Priority) ===",
+        "id": "wired_eth0",
+        "name": "eth0",
+        "type": "Ethernet",
+        "proto": "DHCPv4",
+        "contentDownloadEnabled": true,
+        "textFeedsDownloadEnabled": true,
+        "mediaFeedsDownloadEnabled": true,
+        "healthReportingEnabled": true,
+        "logsUploadEnabled": true,
+        "_comment_priority": "Wired connection preferred when available for faster downloads"
+      },
+      {
+        "_comment": "=== SECONDARY: WiFi INTERFACE (Fallback) ===",
+        "id": "wireless_wlan0",
+        "_comment_id": "Standard WiFi interface identifier",
+
+        "name": "wlan0",
+        "_comment_name": "Linux wireless interface name (usually wlan0)",
+
+        "type": "WiFi",
+        "_comment_type": "Must be 'WiFi' for wireless interfaces",
+
+        "proto": "DHCPv4",
+        "_comment_proto": "WiFi typically uses DHCP, but Static is also supported",
+
+        "ip": [],
+        "_comment_ip": "For static WiFi config: ['192.168.1.150']",
+
+        "gateway": null,
+        "_comment_gateway": "For static WiFi config: '192.168.1.1'",
+
+        "dns": [],
+        "_comment_dns": "For static WiFi config: ['8.8.8.8', '8.8.4.4']",
+
+        "contentDownloadEnabled": true,
+        "_comment_contentDownloadEnabled": "Enable content downloads over WiFi",
+
+        "textFeedsDownloadEnabled": true,
+        "mediaFeedsDownloadEnabled": true,
+        "healthReportingEnabled": true,
+        "logsUploadEnabled": true,
+
+        "rateLimitDuringInitialDownloads": 5000,
+        "_comment_rateLimitDuringInitialDownloads": "Limit to 5Mbps during initial downloads to avoid network congestion",
+
+        "rateLimitInsideContentDownloadWindow": 10000,
+        "_comment_rateLimitInsideContentDownloadWindow": "Allow 10Mbps during scheduled maintenance windows",
+
+        "rateLimitOutsideContentDownloadWindow": 2000,
+        "_comment_rateLimitOutsideContentDownloadWindow": "Limit to 2Mbps during business hours to preserve bandwidth",
+
+        "ssid": "Corporate-WiFi-5GHz",
+        "_comment_ssid": "WiFi network name (REQUIRED for WiFi type)",
+
+        "passphrase": "",
+        "_comment_passphrase": "DEPRECATED: Use security.authentication.passphrase instead",
+
+        "security": {
+          "_comment_security": "WiFi security configuration for WPA/WPA2/WPA3",
+
+          "authentication": {
+            "mode": "Shared",
+            "_comment_mode": "Authentication mode: Open, Shared, WEP",
+
+            "passphrase": "SecureWiFiPassword123!",
+            "_comment_passphrase": "WiFi password (REQUIRED for Shared/WEP modes)"
+          },
+
+          "encryption": {
+            "mode": "TKIP, CCMP",
+            "_comment_mode": "Encryption mode: TKIP, CCMP (AES), or 'TKIP, CCMP' for both"
+          }
+        },
+
+        "wpaSettings": {
+          "_comment_wpaSettings": "=== WPA ENTERPRISE CONFIGURATION (Optional) ===",
+          "_comment_note": "For enterprise WiFi with 802.1X authentication (RADIUS, certificates)",
+
+          "enableWPAEnterpriseAuthentication": false,
+          "_comment_enableWPAEnterpriseAuthentication": "Enable for WPA Enterprise (802.1X) networks",
+
+          "wpaEnterpriseVariant": "WPAEnterpriseEapTls",
+          "_comment_wpaEnterpriseVariant": "Enterprise variant: WPAEnterpriseEapTls, WPAEnterprisePeap, WPAEnterpriseEapTtls",
+
+          "eapCertificateType": "WPAEapTlsPKCS",
+          "_comment_eapCertificateType": "Certificate type: WPAEapTlsPKCS or WPAEapTlsPEM",
+
+          "eapCertificateFile": null,
+          "_comment_eapCertificateFile": "Path to client certificate file for EAP-TLS: '/storage/sd/certs/client.pfx'",
+
+          "eapCertificatePassphrase": "",
+          "_comment_eapCertificatePassphrase": "Passphrase for encrypted certificate file",
+
+          "eapPemOrDerKeyFile": null,
+          "_comment_eapPemOrDerKeyFile": "Path to private key file for PEM certificates: '/storage/sd/certs/client.key'",
+
+          "peapUsername": "",
+          "_comment_peapUsername": "Username for PEAP authentication: 'user@domain.com'",
+
+          "peapPassphrase": "",
+          "_comment_peapPassphrase": "Password for PEAP authentication",
+
+          "caCertificateFile": null,
+          "_comment_caCertificateFile": "Path to CA certificate for server validation: '/storage/sd/certs/ca.pem'"
+        }
+      }
+    ]
+  },
+
+  "timeout": 60,
+  "_comment_timeout": "Longer timeout for WiFi connections which may be slower",
+
+  "_comment_deviceToken": "Device registration tokens are auto-generated by the program - do not include in config",
+
+  "_comment_wifiNotes": [
+    "===== WiFi DEPLOYMENT NOTES =====",
+    "1. Interface Order: List wired before WiFi for proper fallback priority",
+    "2. Rate Limiting: Always set on WiFi to prevent bandwidth issues",
+    "3. SSID Selection: Use 5GHz networks when available for better performance",
+    "4. Security: WPA2/WPA3 with CCMP (AES) is recommended over TKIP",
+    "5. Enterprise WiFi: Set enableWPAEnterpriseAuthentication=true and configure certificates",
+    "6. Static IP: If using proto='Static', populate ip, gateway, and dns arrays",
+    "7. Testing: Test WiFi connectivity in actual deployment environment first",
+    "8. Roaming: Players support WiFi roaming if APs share same SSID/credentials"
+  ]
+}

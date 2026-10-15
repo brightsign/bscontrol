@@ -1,0 +1,25 @@
+{
+  "found": true,
+  "serial": "UTD41X000009",
+  "networkName": "Production Network",
+  "networkId": 12345,
+  "device": {
+    "id": 67890,
+    "serial": "UTD41X000009",
+    "model": "HD1024",
+    "family": "HD",
+    "registrationDate": "2024-01-15T10:30:00Z",
+    "lastModifiedDate": "2024-05-20T14:22:00Z",
+    "settings": {
+      "name": "Lobby Display",
+      "description": "Main lobby digital signage",
+      "setupType": "lfn-ethernet",
+      "timezone": "America/New_York",
+      "group": {
+        "id": 111,
+        "name": "Retail Stores"
+      }
+    }
+  },
+  "networksSearched": 3
+}

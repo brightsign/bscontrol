@@ -1,0 +1,13 @@
+# Build output
+bin/
+vendor/
+
+# Environment / local config
+.env
+.envrc
+
+# Editor backups
+*~
+
+# LLM working dir
+.llm/

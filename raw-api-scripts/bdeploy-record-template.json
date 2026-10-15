@@ -1,0 +1,31 @@
+{
+  "version": "3.0.0",
+  "_id": "",
+  "bDeploy": {
+    "username": "{{BS_USERNAME}}",
+    "networkName": "{{BS_NETWORK}}",
+    "packageName": "{{PACKAGE_NAME}}"
+  },
+  "setupType": "{{SETUP_TYPE}}",
+  "bsnDeviceRegistrationTokenEntity": {
+    "token": "registration-token-12345",
+    "scope": "cert",
+    "validFrom": "2023-11-15T00:00:00.000Z",
+    "validTo": "2025-11-15T00:00:00.000Z"
+  },
+  "timeZone": "PST",
+  "bsnGroupName": "Default",
+  "network": {
+    "timeServers": ["http://time.brightsignnetwork.com"],
+    "interfaces": [
+      {
+        "id": "wired_eth0",
+        "name": "eth0",
+        "type": "Ethernet",
+        "proto": "DHCPv4",
+        "contentDownloadEnabled": true,
+        "healthReportingEnabled": true
+      }
+    ]
+  }
+}
