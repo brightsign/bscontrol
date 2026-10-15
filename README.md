@@ -2,6 +2,9 @@
 
 ![BrightSign Control Logo](images/logo.png)
 
+> **Derived from [gopurple](https://github.com/BrightDevelopers/gopurple).**
+> This SDK was split out of the [gopurple](https://github.com/BrightDevelopers/gopurple) project into its own repository. We are building fast and expanding well beyond the original scope, so expect frequent changes as the API grows. For the original project, see [BrightDevelopers/gopurple](https://github.com/BrightDevelopers/gopurple).
+
 **Status:** EXTERNAL BETA RELEASE
 
 ## Why Go Instead of Python?
