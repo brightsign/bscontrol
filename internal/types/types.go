@@ -111,25 +111,6 @@ type DeviceDownloadList struct {
 	TotalCount int              `json:"totalCount"`
 }
 
-// DeviceOperation represents an operation performed on a device.
-type DeviceOperation struct {
-	ID            int       `json:"id"`
-	OperationType string    `json:"operationType"` // reboot, reprovision, update, etc.
-	Status        string    `json:"status"`        // pending, in_progress, completed, failed
-	CreatedBy     string    `json:"createdBy"`
-	CreatedAt     time.Time `json:"createdAt"`
-	StartedAt     time.Time `json:"startedAt,omitempty"`
-	CompletedAt   time.Time `json:"completedAt,omitempty"`
-	Error         string    `json:"error,omitempty"`
-	Progress      int       `json:"progress,omitempty"` // 0-100
-}
-
-// DeviceOperationList represents a list of device operations.
-type DeviceOperationList struct {
-	Items      []DeviceOperation `json:"items"`
-	TotalCount int               `json:"totalCount"`
-}
-
 // Region represents a rectangular region for screenshots.
 type Region struct {
 	X      int `json:"x"`
@@ -1474,6 +1455,35 @@ type SubscriptionList struct {
 // SubscriptionCount represents the count of subscriptions
 type SubscriptionCount struct {
 	Count int `json:"count"`
+}
+
+// UnmarshalJSON decodes the count from either shape the BSN.cloud Count
+// endpoints return: a bare JSON number (158) or an object ({"count": 158}).
+// The endpoints are inconsistent across resources, so both are accepted; any
+// other shape is a contract violation and surfaces as an error.
+func (c *SubscriptionCount) UnmarshalJSON(data []byte) error {
+	trimmed := strings.TrimSpace(string(data))
+
+	if trimmed == "null" {
+		return fmt.Errorf("subscription count: unexpected null body")
+	}
+
+	if strings.HasPrefix(trimmed, "{") {
+		type alias SubscriptionCount
+		var obj alias
+		if err := json.Unmarshal(data, &obj); err != nil {
+			return err
+		}
+		*c = SubscriptionCount(obj)
+		return nil
+	}
+
+	var count int
+	if err := json.Unmarshal(data, &count); err != nil {
+		return err
+	}
+	c.Count = count
+	return nil
 }
 
 // SubscriptionOperation represents an operation that can be performed on subscriptions

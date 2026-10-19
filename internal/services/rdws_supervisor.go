@@ -34,8 +34,7 @@ func (s *rdwsService) TriggerUpdateSync(ctx context.Context, serial string) (*ty
 
 	var response types.RDWSUpdateSyncResponse
 	if err := s.httpClient.PostWithAuth(ctx, token, url, struct{}{}, &response); err != nil {
-		return nil, errors.NewAPIError(0, "rdws_update_sync_failed",
-			fmt.Sprintf("Failed to trigger a supervisor update check on device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to trigger a supervisor update check on device with serial '%s': %w", serial, err)
 	}
 	return &response.Data.Result, nil
 }
@@ -63,8 +62,9 @@ func (s *rdwsService) GetStoredSupervisors(ctx context.Context, serial string) (
 
 	listing, err := s.ListFiles(ctx, serial, "sys/supervisors")
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_stored_supervisors_failed",
-			fmt.Sprintf("Failed to list stored supervisors on device with serial '%s'", serial), err.Error())
+		// ListFiles's own error already carries the serial and path; don't
+		// repeat the serial here.
+		return nil, fmt.Errorf("failed to list stored supervisors: %w", err)
 	}
 
 	return storedSupervisorsFromFileList(listing.Data.Result), nil
@@ -121,8 +121,7 @@ func (s *rdwsService) DeleteSupervisors(ctx context.Context, serial string, requ
 
 	var response types.RDWSDeleteSupervisorsResponse
 	if err := s.httpClient.PostWithAuth(ctx, token, url, request, &response); err != nil {
-		return false, errors.NewAPIError(0, "rdws_delete_supervisors_failed",
-			fmt.Sprintf("Failed to delete supervisors on device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to delete supervisors on device with serial '%s': %w", serial, err)
 	}
 	return response.Data.Result.Success, nil
 }
@@ -153,8 +152,7 @@ func (s *rdwsService) GetSystemInfo(ctx context.Context, serial string) (*types.
 
 	var response types.RDWSSystemInfoResponse
 	if err := s.httpClient.GetWithAuth(ctx, token, url, &response); err != nil {
-		return nil, errors.NewAPIError(0, "rdws_system_info_failed",
-			fmt.Sprintf("Failed to get system information from device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get system information from device with serial '%s': %w", serial, err)
 	}
 	return &response.Data.Result, nil
 }
@@ -178,8 +176,9 @@ func (s *rdwsService) GetCrashDumpFiles(ctx context.Context, serial string) ([]t
 
 	listing, err := s.ListFiles(ctx, serial, "sd/brightsign-dumps")
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_crash_dump_list_failed",
-			fmt.Sprintf("Failed to list crash dumps on device with serial '%s'", serial), err.Error())
+		// ListFiles's own error already carries the serial and path; don't
+		// repeat the serial here.
+		return nil, fmt.Errorf("failed to list crash dumps: %w", err)
 	}
 
 	return crashDumpEntriesFromFileList(listing.Data.Result), nil

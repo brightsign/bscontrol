@@ -17,15 +17,17 @@ description: >-
 
 # BrightSign Control CLI (`bsn-*` tools)
 
-A suite of 66 single-purpose command-line programs for operating BrightSign players and
+A suite of 65 single-purpose command-line programs for operating BrightSign players and
 fleets through **BrightSign Control** (the cloud platform formerly called BSN.cloud,
 including its **B-Deploy** provisioning API and **rDWS** remote-player API). Each program
-does one thing, shares a common flag and auth convention, and can emit JSON for scripting.
+does one thing and shares a common flag and auth convention (with the per-command
+exceptions this skill calls out), and can emit JSON for scripting.
 
 Use this skill to pick the right command, invoke it correctly, and chain commands into
-fleet workflows. For the complete command list with one-line purposes, read
-`references/commands.md`. For exhaustive per-command flag documentation, the repo's
-`examples/README.md` is authoritative.
+fleet workflows. For the complete command list with one-line purposes — including which
+exact flag skips a confirmation prompt, since that varies by command — read
+`references/commands.md`. For per-command flag documentation beyond `--help`, the repo's
+`examples/README.md` covers most commands (a few newer ones aren't in it yet).
 
 ## Build and locate the tools
 
@@ -90,6 +92,7 @@ Map the user's intent to a subsystem first, then to a verb:
 | The user wants to... | Reach for |
 |---|---|
 | See/inspect what's in the account inventory | `bsn-device-list`, `bsn-device-info`, `bsn-device-status`, `bsn-device-errors` |
+| Find a serial but don't know which network it's on | `bsn-device-find` (account) / `bsn-bdeploy-device-find` (B-Deploy) — both search **every network you have access to**; neither takes/needs `--network` |
 | Move a player between groups, delete it from the account | `bsn-device-group-change`, `bsn-device-delete` |
 | Manage groups or subscriptions | `bsn-group-*`, `bsn-subscription-*` |
 | Mint/revoke a provisioning registration token | `bsn-regtoken-get`, `bsn-regtoken-revoke` |
@@ -117,27 +120,38 @@ already operating on that live player.
 ## Invocation conventions (shared by nearly every tool)
 
 Run `--help` on any command before first use — it is the source of truth for that tool's
-flags, and the flags are consistent across the suite:
+flags. Most of the flags below are shared, with the exceptions noted:
 
 | Flag | Purpose |
 |---|---|
 | `--help` | Usage and flags |
-| `--network <name>` / `-n` | Select the network/account (overrides `BS_NETWORK`) |
+| `--network <name>` / `-n` | Select the network/account (overrides `BS_NETWORK`). Not accepted by `bsn-device-find`/`bsn-bdeploy-device-find` (they search every network) or by a few account tools (`bsn-device-group-change` among them) that read `BS_NETWORK` only, with no per-call override |
 | `--serial <serial>` | Target a player by serial number |
 | `--id <id>` | Target a device by numeric ID (where supported) |
 | `--json` | Machine-readable output — use this whenever you will parse the result |
-| `--verbose` | Extra detail for debugging |
-| `--timeout <seconds>` | Request timeout (default 30) |
-| `--force` / `-y` | Skip the confirmation prompt on destructive operations |
+| `--verbose` | Extra detail for debugging (not every command has it) |
+| `--timeout <seconds>` | Request timeout (default 30, where supported) |
+| `-y` and/or `--force` | Skip a confirmation prompt — **not interchangeable aliases on every command.** Some commands accept only `-y`, some only `--force`, some both (true aliases). Passing the wrong one is a flag-parsing error, not a no-op. `references/commands.md` names the exact flag(s) for every command that needs one. |
 
 Rules that keep scripted use safe and predictable:
 
 - **Parse JSON, not prose.** Add `--json` for any output you intend to read programmatically;
   the human-readable format is not a stable contract.
-- **Destructive commands prompt by default.** `bsn-device-delete`, `bsn-bdeploy-setup-delete`,
-  `bsn-rdws-storage-reformat`, `bsn-rdws-reboot --factory-reset`, etc. will ask for
-  confirmation unless you pass `-y`. In automation, pass `-y` deliberately — never to
-  silence a prompt you did not read.
+- **Destructive/state-changing commands prompt by default, and the skip flag isn't uniform.**
+  `bsn-device-delete`/`bsn-group-delete`/`bsn-rdws-reboot`/`bsn-rdws-registry-set` accept
+  either `-y` or `--force` (true aliases). `bsn-bdeploy-device-delete`,
+  `bsn-bdeploy-setup-delete`, `bsn-rdws-files-delete`, and `bsn-regtoken-revoke` accept
+  **only** `--force`. `bsn-device-ldws-enable`, `bsn-device-ldws-password`,
+  `bsn-rdws-firmware-download`, `bsn-rdws-reprovision`, and `bsn-rdws-storage-reformat`
+  accept **only** `-y`. Check `references/commands.md` before scripting one you haven't
+  used; in automation, pass the flag deliberately — never to silence a prompt you did not
+  read. Several of these also **require** the skip-confirmation flag whenever `--json` is
+  set, since they cannot show an interactive prompt in that mode — `bsn-rdws-reboot`,
+  `bsn-rdws-registry-set`, `bsn-rdws-reprovision`, `bsn-rdws-storage-reformat`,
+  `bsn-rdws-firmware-download`, and `bsn-rdws-files-delete`.
+- **`bsn-device-group-change` has no skip flag at all.** Assigning a device to a group name
+  that doesn't already exist blocks on an interactive y/N prompt with no way to bypass it —
+  don't target an unverified group name from a script.
 - **Exit codes are meaningful.** A non-zero exit means the operation failed; check it in
   scripts rather than grepping stdout. See `examples/README.md` for the exit-code table.
 - **One player vs. the fleet.** The `bsn-rdws-*` tools act on a single `--serial`. To apply
@@ -171,6 +185,10 @@ Rules that keep scripted use safe and predictable:
 ```bash
 ./bin/bsn-device-group-change --serial <SERIAL> --group "<GROUP_NAME>"
 ```
+Only safe to script when `<GROUP_NAME>` is a group you already confirmed exists (e.g. via
+`bsn-group-info`) — a nonexistent name triggers an interactive y/N prompt this command has
+no flag to skip, and it will hang waiting on stdin. There is also no `--network` flag here;
+set `BS_NETWORK` first.
 
 **Join a fielded player to a network by registry keys ("opt-out"):** add an
 already-running player to a BrightSign Control network in place — no wipe, no re-sync. Mint
@@ -201,6 +219,9 @@ caveats — read `references/opt-out-provisioning.md` before running it.
 - `references/opt-out-provisioning.md` — the full recipe for joining a fielded player to a
   network by registry keys (the five keys, token minting, delivery methods, verification,
   and the scope/OS requirements). Read this before attempting opt-out.
-- `examples/README.md` (repo root of the examples) — full per-command flags, configuration
-  file formats, pagination, exit codes, and worked examples. Go here when `--help` is not
-  enough.
+- `examples/README.md` (repo root of the examples) — per-command flags, configuration
+  file formats, pagination, exit codes, and worked examples for most commands (a few
+  newer ones — `bsn-generate-token-json`, `bsn-regtoken-get`/`-revoke`,
+  `bsn-device-find`/`bsn-bdeploy-device-find`, `bsn-endpoints-test`,
+  `bsn-bdeploy-setup-add-raw`, `bsn-render-setup-template` — aren't documented there yet;
+  use `--help` for those). Go here when `--help` is not enough.

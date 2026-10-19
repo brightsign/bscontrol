@@ -150,8 +150,7 @@ func (s *rdwsService) GetInfo(ctx context.Context, serial string) (*types.RDWSIn
 	var response types.RDWSInfoResponse
 	err = s.httpClient.GetWithAuth(ctx, token, infoURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_info_failed",
-			fmt.Sprintf("Failed to get info for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get info for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -185,8 +184,7 @@ func (s *rdwsService) GetTime(ctx context.Context, serial string) (*types.RDWSTi
 	var response types.RDWSTimeResponse
 	err = s.httpClient.GetWithAuth(ctx, token, timeURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_time_failed",
-			fmt.Sprintf("Failed to get time for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get time for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -229,8 +227,7 @@ func (s *rdwsService) SetTime(ctx context.Context, serial string, request *types
 	var response types.RDWSTimeSetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, timeURL, requestBody, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_time_set_failed",
-			fmt.Sprintf("Failed to set time for device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to set time for device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result, nil
@@ -265,8 +262,7 @@ func (s *rdwsService) GetHealth(ctx context.Context, serial string) (*types.RDWS
 	var response types.RDWSHealthResponse
 	err = s.httpClient.GetWithAuth(ctx, token, healthURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_health_failed",
-			fmt.Sprintf("Failed to get health for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get health for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -303,8 +299,7 @@ func (s *rdwsService) ListFiles(ctx context.Context, serial string, path string)
 	var response types.RDWSFileListResponse
 	err = s.httpClient.GetWithAuth(ctx, token, filesURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_files_list_failed",
-			fmt.Sprintf("Failed to list files for device with serial '%s' at path '%s'", serial, path), err.Error())
+		return nil, fmt.Errorf("failed to list files for device with serial '%s' at path '%s': %w", serial, path, err)
 	}
 
 	return &response, nil
@@ -356,8 +351,7 @@ func (s *rdwsService) UploadFile(ctx context.Context, serial string, path string
 	var response types.RDWSFileUploadResponse
 	err = s.httpClient.PutWithAuth(ctx, token, filesURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_file_upload_failed",
-			fmt.Sprintf("Failed to upload file '%s' to device with serial '%s'", fileName, serial), err.Error())
+		return false, fmt.Errorf("failed to upload file '%s' to device with serial '%s': %w", fileName, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -394,8 +388,7 @@ func (s *rdwsService) CreateFolder(ctx context.Context, serial string, path stri
 	var response types.RDWSFileOperationResponse
 	err = s.httpClient.PutWithAuth(ctx, token, folderURL, nil, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_folder_create_failed",
-			fmt.Sprintf("Failed to create folder at '%s' on device with serial '%s'", path, serial), err.Error())
+		return false, fmt.Errorf("failed to create folder at '%s' on device with serial '%s': %w", path, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -439,8 +432,7 @@ func (s *rdwsService) RenameFile(ctx context.Context, serial string, path string
 	var response types.RDWSFileOperationResponse
 	err = s.httpClient.PostWithAuth(ctx, token, filesURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_file_rename_failed",
-			fmt.Sprintf("Failed to rename file '%s' on device with serial '%s'", path, serial), err.Error())
+		return false, fmt.Errorf("failed to rename file '%s' on device with serial '%s': %w", path, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -477,8 +469,7 @@ func (s *rdwsService) DeleteFile(ctx context.Context, serial string, path string
 	var response types.RDWSFileOperationResponse
 	err = s.httpClient.DeleteWithAuth(ctx, token, filesURL, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_file_delete_failed",
-			fmt.Sprintf("Failed to delete file '%s' on device with serial '%s'", path, serial), err.Error())
+		return false, fmt.Errorf("failed to delete file '%s' on device with serial '%s': %w", path, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -512,8 +503,7 @@ func (s *rdwsService) GetLocalDWS(ctx context.Context, serial string) (*types.RD
 	var response types.RDWSLocalDWSResponse
 	err = s.httpClient.GetWithAuth(ctx, token, localDWSURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_local_dws_get_failed",
-			fmt.Sprintf("Failed to get local DWS status for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get local DWS status for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -551,8 +541,7 @@ func (s *rdwsService) SetLocalDWS(ctx context.Context, serial string, enabled bo
 	var response types.RDWSLocalDWSSetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, localDWSURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_local_dws_set_failed",
-			fmt.Sprintf("Failed to set local DWS status for device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to set local DWS status for device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -586,8 +575,7 @@ func (s *rdwsService) GetDiagnostics(ctx context.Context, serial string) (*types
 	var response types.RDWSDiagnosticsResponse
 	err = s.httpClient.GetWithAuth(ctx, token, diagnosticsURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_diagnostics_failed",
-			fmt.Sprintf("Failed to run diagnostics for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to run diagnostics for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -624,8 +612,7 @@ func (s *rdwsService) DNSLookup(ctx context.Context, serial string, domain strin
 	var response types.RDWSDNSLookupResponse
 	err = s.httpClient.GetWithAuth(ctx, token, dnsURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_dns_lookup_failed",
-			fmt.Sprintf("Failed to perform DNS lookup for domain '%s' on device with serial '%s'", domain, serial), err.Error())
+		return nil, fmt.Errorf("failed to perform DNS lookup for domain '%s' on device with serial '%s': %w", domain, serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -662,8 +649,7 @@ func (s *rdwsService) Ping(ctx context.Context, serial string, host string) (*ty
 	var response types.RDWSPingResponse
 	err = s.httpClient.GetWithAuth(ctx, token, pingURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_ping_failed",
-			fmt.Sprintf("Failed to ping host '%s' from device with serial '%s'", host, serial), err.Error())
+		return nil, fmt.Errorf("failed to ping host '%s' from device with serial '%s': %w", host, serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -700,8 +686,7 @@ func (s *rdwsService) TraceRoute(ctx context.Context, serial string, host string
 	var response types.RDWSTraceRouteResponse
 	err = s.httpClient.GetWithAuth(ctx, token, traceURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_trace_route_failed",
-			fmt.Sprintf("Failed to trace route to host '%s' from device with serial '%s'", host, serial), err.Error())
+		return nil, fmt.Errorf("failed to trace route to host '%s' from device with serial '%s': %w", host, serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -738,8 +723,7 @@ func (s *rdwsService) GetNetworkConfig(ctx context.Context, serial string, iface
 	var response types.RDWSNetworkConfigResponse
 	err = s.httpClient.GetWithAuth(ctx, token, netConfigURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_network_config_get_failed",
-			fmt.Sprintf("Failed to get network configuration for interface '%s' on device with serial '%s'", iface, serial), err.Error())
+		return nil, fmt.Errorf("failed to get network configuration for interface '%s' on device with serial '%s': %w", iface, serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -779,8 +763,7 @@ func (s *rdwsService) SetNetworkConfig(ctx context.Context, serial string, iface
 	var response types.RDWSNetworkConfigSetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, netConfigURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_network_config_set_failed",
-			fmt.Sprintf("Failed to set network configuration for interface '%s' on device with serial '%s'", iface, serial), err.Error())
+		return false, fmt.Errorf("failed to set network configuration for interface '%s' on device with serial '%s': %w", iface, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -814,8 +797,7 @@ func (s *rdwsService) GetNetworkNeighborhood(ctx context.Context, serial string)
 	var response types.RDWSNetworkNeighborhoodResponse
 	err = s.httpClient.GetWithAuth(ctx, token, neighborhoodURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_network_neighborhood_failed",
-			fmt.Sprintf("Failed to get network neighborhood for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get network neighborhood for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -849,8 +831,7 @@ func (s *rdwsService) GetPacketCaptureStatus(ctx context.Context, serial string)
 	var response types.RDWSPacketCaptureResponse
 	err = s.httpClient.GetWithAuth(ctx, token, packetCaptureURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_packet_capture_status_failed",
-			fmt.Sprintf("Failed to get packet capture status for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get packet capture status for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -887,8 +868,7 @@ func (s *rdwsService) StartPacketCapture(ctx context.Context, serial string, req
 	var response types.RDWSPacketCaptureStartResponse
 	err = s.httpClient.PostWithAuth(ctx, token, packetCaptureURL, request, &response)
 	if err != nil {
-		return "", errors.NewAPIError(0, "rdws_packet_capture_start_failed",
-			fmt.Sprintf("Failed to start packet capture on device with serial '%s'", serial), err.Error())
+		return "", fmt.Errorf("failed to start packet capture on device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.FilePath, nil
@@ -922,8 +902,7 @@ func (s *rdwsService) StopPacketCapture(ctx context.Context, serial string) (str
 	var response types.RDWSPacketCaptureStopResponse
 	err = s.httpClient.DeleteWithAuth(ctx, token, packetCaptureURL, &response)
 	if err != nil {
-		return "", errors.NewAPIError(0, "rdws_packet_capture_stop_failed",
-			fmt.Sprintf("Failed to stop packet capture on device with serial '%s'", serial), err.Error())
+		return "", fmt.Errorf("failed to stop packet capture on device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.FilePath, nil
@@ -957,8 +936,7 @@ func (s *rdwsService) GetTelnetStatus(ctx context.Context, serial string) (*type
 	var response types.RDWSTelnetResponse
 	err = s.httpClient.GetWithAuth(ctx, token, telnetURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_telnet_get_failed",
-			fmt.Sprintf("Failed to get telnet status for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get telnet status for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -999,8 +977,7 @@ func (s *rdwsService) SetTelnetStatus(ctx context.Context, serial string, enable
 	var response types.RDWSTelnetSetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, telnetURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_telnet_set_failed",
-			fmt.Sprintf("Failed to set telnet status for device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to set telnet status for device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1034,8 +1011,7 @@ func (s *rdwsService) GetSSHStatus(ctx context.Context, serial string) (*types.R
 	var response types.RDWSSSHResponse
 	err = s.httpClient.GetWithAuth(ctx, token, sshURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_ssh_get_failed",
-			fmt.Sprintf("Failed to get SSH status for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get SSH status for device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -1080,8 +1056,7 @@ func (s *rdwsService) SetSSHStatus(ctx context.Context, serial string, enabled b
 	var response types.RDWSSSHSetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, sshURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_ssh_set_failed",
-			fmt.Sprintf("Failed to set SSH status for device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to set SSH status for device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1120,8 +1095,7 @@ func (s *rdwsService) ReformatStorage(ctx context.Context, serial string, device
 	var response types.RDWSStorageReformatResponse
 	err = s.httpClient.DeleteWithAuth(ctx, token, storageURL, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_storage_reformat_failed",
-			fmt.Sprintf("Failed to reformat storage device '%s' on device with serial '%s'", deviceName, serial), err.Error())
+		return false, fmt.Errorf("failed to reformat storage device '%s' on device with serial '%s': %w", deviceName, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1163,8 +1137,7 @@ func (s *rdwsService) SendCustomData(ctx context.Context, serial string, data st
 	var response types.RDWSCustomDataResponse
 	err = s.httpClient.PutWithAuth(ctx, token, customURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_custom_data_failed",
-			fmt.Sprintf("Failed to send custom data to device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to send custom data to device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1216,8 +1189,7 @@ func (s *rdwsService) DownloadFirmware(ctx context.Context, serial string, firmw
 	var response types.RDWSFirmwareDownloadResponse
 	err = s.httpClient.GetWithAuth(ctx, token, firmwareDownloadURL, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_firmware_download_failed",
-			fmt.Sprintf("Failed to initiate firmware download on device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to initiate firmware download on device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1251,8 +1223,7 @@ func (s *rdwsService) GetRegistry(ctx context.Context, serial string) (*types.RD
 	var response types.RDWSRegistryResponse
 	err = s.httpClient.GetWithAuth(ctx, token, registryURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_registry_get_failed",
-			fmt.Sprintf("Failed to get registry from device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get registry from device with serial '%s': %w", serial, err)
 	}
 
 	return &response.Data.Result, nil
@@ -1292,8 +1263,7 @@ func (s *rdwsService) GetRegistryValue(ctx context.Context, serial string, secti
 	var response types.RDWSRegistryValueResponse
 	err = s.httpClient.GetWithAuth(ctx, token, registryURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_registry_value_get_failed",
-			fmt.Sprintf("Failed to get registry value '%s/%s' from device with serial '%s'", section, key, serial), err.Error())
+		return nil, fmt.Errorf("failed to get registry value '%s/%s' from device with serial '%s': %w", section, key, serial, err)
 	}
 
 	return &types.RDWSRegistryValue{
@@ -1341,8 +1311,7 @@ func (s *rdwsService) SetRegistryValue(ctx context.Context, serial string, secti
 	var response types.RDWSRegistrySetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, registryURL, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_registry_value_set_failed",
-			fmt.Sprintf("Failed to set registry value '%s/%s' on device with serial '%s'", section, key, serial), err.Error())
+		return false, fmt.Errorf("failed to set registry value '%s/%s' on device with serial '%s': %w", section, key, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1382,8 +1351,7 @@ func (s *rdwsService) DeleteRegistryValue(ctx context.Context, serial string, se
 	var response types.RDWSRegistryDeleteResponse
 	err = s.httpClient.DeleteWithAuth(ctx, token, registryURL, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_registry_value_delete_failed",
-			fmt.Sprintf("Failed to delete registry value '%s/%s' from device with serial '%s'", section, key, serial), err.Error())
+		return false, fmt.Errorf("failed to delete registry value '%s/%s' from device with serial '%s': %w", section, key, serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1417,8 +1385,7 @@ func (s *rdwsService) FlushRegistry(ctx context.Context, serial string) (bool, e
 	var response types.RDWSRegistryFlushResponse
 	err = s.httpClient.PutWithAuth(ctx, token, registryURL, nil, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_registry_flush_failed",
-			fmt.Sprintf("Failed to flush registry on device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to flush registry on device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1452,8 +1419,7 @@ func (s *rdwsService) GetRecoveryURL(ctx context.Context, serial string) (*types
 	var response types.RDWSRecoveryURLResponse
 	err = s.httpClient.GetWithAuth(ctx, token, recoveryURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_recovery_url_get_failed",
-			fmt.Sprintf("Failed to get recovery URL from device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get recovery URL from device with serial '%s': %w", serial, err)
 	}
 
 	return &types.RDWSRecoveryURL{
@@ -1496,8 +1462,7 @@ func (s *rdwsService) SetRecoveryURL(ctx context.Context, serial string, recover
 	var response types.RDWSRecoveryURLSetResponse
 	err = s.httpClient.PutWithAuth(ctx, token, recoveryURLEndpoint, request, &response)
 	if err != nil {
-		return false, errors.NewAPIError(0, "rdws_recovery_url_set_failed",
-			fmt.Sprintf("Failed to set recovery URL on device with serial '%s'", serial), err.Error())
+		return false, fmt.Errorf("failed to set recovery URL on device with serial '%s': %w", serial, err)
 	}
 
 	return response.Data.Result.Success, nil
@@ -1531,14 +1496,12 @@ func (s *rdwsService) GetLogs(ctx context.Context, serial string) (*types.RDWSLo
 	var response types.RDWSLogsResponse
 	err = s.httpClient.GetWithAuth(ctx, token, logsEndpoint, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_logs_failed",
-			fmt.Sprintf("Failed to get logs from device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get logs from device with serial '%s': %w", serial, err)
 	}
 
 	logs, parseErr := parseLogsResult(response.Data.Result)
 	if parseErr != nil {
-		return nil, errors.NewAPIError(0, "rdws_logs_parse_failed",
-			fmt.Sprintf("Failed to parse logs response from device with serial '%s'", serial), parseErr.Error())
+		return nil, fmt.Errorf("failed to parse logs response from device with serial '%s': %w", serial, parseErr)
 	}
 
 	return logs, nil
@@ -1596,23 +1559,21 @@ func (s *rdwsService) GetCrashDump(ctx context.Context, serial string) (*types.R
 	var response types.RDWSCrashDumpResponse
 	err = s.httpClient.GetWithAuth(ctx, token, crashDumpEndpoint, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "rdws_crash_dump_failed",
-			fmt.Sprintf("Failed to get crash dump from device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get crash dump from device with serial '%s': %w", serial, err)
 	}
 
 	// Check if result is an error string or a success object
 	var errorString string
 	if err := json.Unmarshal(response.Data.Result, &errorString); err == nil {
 		// Result is a string (error message)
-		return nil, errors.NewAPIError(0, "rdws_crash_dump_error",
+		return nil, errors.NewAppError("rdws_crash_dump_error",
 			fmt.Sprintf("Device returned error for serial '%s'", serial), errorString)
 	}
 
 	// Try to unmarshal as success response
 	var result types.RDWSCrashDumpResult
 	if err := json.Unmarshal(response.Data.Result, &result); err != nil {
-		return nil, errors.NewAPIError(0, "rdws_crash_dump_parse_failed",
-			fmt.Sprintf("Failed to parse crash dump response from device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to parse crash dump response from device with serial '%s': %w", serial, err)
 	}
 
 	// Convert response to return type

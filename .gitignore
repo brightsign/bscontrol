@@ -5,6 +5,7 @@ vendor/
 # Environment / local config
 .env
 .envrc
+.token
 
 # Editor backups
 *~

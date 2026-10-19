@@ -8,7 +8,6 @@ import (
 
 	"github.com/brightsign/bscontrol/internal/auth"
 	"github.com/brightsign/bscontrol/internal/config"
-	"github.com/brightsign/bscontrol/internal/errors"
 	"github.com/brightsign/bscontrol/internal/http"
 	"github.com/brightsign/bscontrol/internal/types"
 )
@@ -82,7 +81,7 @@ func (s *subscriptionService) List(ctx context.Context, opts ...ListOption) (*ty
 	// Make the request
 	var result types.SubscriptionList
 	if err := s.httpClient.GetWithAuth(ctx, token, baseURL, &result); err != nil {
-		return nil, errors.NewAPIError(0, "subscription_list_failed", "Failed to list subscriptions", err.Error())
+		return nil, fmt.Errorf("failed to list subscriptions: %w", err)
 	}
 
 	return &result, nil
@@ -111,7 +110,7 @@ func (s *subscriptionService) GetCount(ctx context.Context) (*types.Subscription
 	// Make the request
 	var result types.SubscriptionCount
 	if err := s.httpClient.GetWithAuth(ctx, token, url, &result); err != nil {
-		return nil, errors.NewAPIError(0, "subscription_count_failed", "Failed to get subscription count", err.Error())
+		return nil, fmt.Errorf("failed to get subscription count: %w", err)
 	}
 
 	return &result, nil
@@ -140,7 +139,7 @@ func (s *subscriptionService) GetOperations(ctx context.Context) (*types.Subscri
 	// Make the request
 	var result types.SubscriptionOperations
 	if err := s.httpClient.GetWithAuth(ctx, token, url, &result); err != nil {
-		return nil, errors.NewAPIError(0, "subscription_operations_failed", "Failed to get subscription operations", err.Error())
+		return nil, fmt.Errorf("failed to get subscription operations: %w", err)
 	}
 
 	return &result, nil

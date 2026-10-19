@@ -55,7 +55,7 @@ As the Go team notes, [Go is excellent for building LLM-powered applications](ht
 
 Go compiles to native machine code, delivering [significantly better performance](https://uvik.net/blog/go-vs-python/) than interpreted Python for CPU-bound operations. For an SDK making hundreds of API calls, parsing large responses, and processing device data, this translates to faster execution and lower resource usage.
 
-A comprehensive Go SDK providing type-safe access to BrightSign Network (BSN.cloud) APIs. Includes both the main REST API and Remote Diagnostic Web Server (RDWS) functionality with 66 working example programs.
+A comprehensive Go SDK providing type-safe access to BrightSign Network (BSN.cloud) APIs. Includes both the main REST API and Remote Diagnostic Web Server (RDWS) functionality with 65 working example programs.
 
 ## What It Does
 
@@ -333,7 +333,7 @@ client, err := bscontrol.New(
 
 ## Examples
 
-The SDK includes **66 working example programs** demonstrating all functionality. Each example is a standalone CLI tool you can use immediately. Every program is named `bsn-[<subsystem>-]<object>-<verb>` and builds to `bin/<name>`.
+The SDK includes **65 working example programs** demonstrating all functionality. Each example is a standalone CLI tool you can use immediately. Every program is named `bsn-[<subsystem>-]<object>-<verb>` and builds to `bin/<name>`.
 
 See **[examples/README.md](examples/README.md)** for complete documentation of all examples with usage instructions, and the agent skill in **[skills/brightsign-control-cli/](skills/brightsign-control-cli/)** for a decision-oriented command index.
 
@@ -342,7 +342,7 @@ See **[examples/README.md](examples/README.md)** for complete documentation of a
 | Category | Count | Examples |
 |----------|-------|----------|
 | **Authentication & helpers** | 4 | `bsn-auth-info`, `bsn-token-test`, `bsn-generate-token-json`, `bsn-endpoints-test` |
-| **Account device management** | 11 | List, find, info, status, errors, operations, downloads, delete, group change, local-DWS |
+| **Account device management** | 10 | List, find, info, status, errors, downloads, delete, group change, local-DWS |
 | **Group management** | 3 | Group info, updates, deletion |
 | **Subscription management** | 3 | Device subscriptions, counts, operations |
 | **Registration & provisioning** | 3 | Mint/revoke registration tokens, generate a player registration script |

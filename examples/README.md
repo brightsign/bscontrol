@@ -248,7 +248,7 @@ Mint a registration token for a network and emit a ready-to-run player **registr
 
 ---
 
-## Device Management (9)
+## Device Management (8)
 
 ### bsn-device-info
 Get real-time BrightSign device information via rDWS.
@@ -296,21 +296,6 @@ Retrieve device error logs.
 ```bash
 ./bin/bsn-device-errors --serial BS123456789
 ./bin/bsn-device-errors --serial BS123456789 --limit 50
-```
-
-### bsn-device-operations
-View operations on devices.
-
-**Flags:**
-- `--serial <serial>`: Device serial number
-- `--network <name>` / `-n`: Network name
-- `--json`: Output as JSON
-- `--verbose`: Show detailed information
-- `--timeout 30`: Request timeout in seconds
-
-**Usage:**
-```bash
-./bin/bsn-device-operations --serial BS123456789
 ```
 
 ### bsn-device-downloads

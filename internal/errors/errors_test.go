@@ -22,6 +22,34 @@ func TestAPIError(t *testing.T) {
 	}
 }
 
+func TestAppError(t *testing.T) {
+	err := NewAppError("bdeploy_api_error", "B-Deploy API returned an error", "some detail")
+
+	expected := "application error (bdeploy_api_error): B-Deploy API returned an error - some detail"
+	if err.Error() != expected {
+		t.Errorf("Expected error message '%s', got '%s'", expected, err.Error())
+	}
+
+	// Test without details
+	err = NewAppError("invalid_token_response", "API returned empty token", "")
+	expected = "application error (invalid_token_response): API returned empty token"
+	if err.Error() != expected {
+		t.Errorf("Expected error message '%s', got '%s'", expected, err.Error())
+	}
+}
+
+// AppError represents an application-level failure embedded in an otherwise
+// successful HTTP response. It must not be confused with APIError, which
+// always carries a real HTTP status code; AppError has none to give.
+func TestAppErrorIsNotAnAPIError(t *testing.T) {
+	err := NewAppError("bdeploy_api_error", "B-Deploy API returned an error", "")
+
+	var apiErr *APIError
+	if errors.As(error(err), &apiErr) {
+		t.Error("AppError should not match errors.As(*APIError) — it carries no real HTTP status")
+	}
+}
+
 func TestAuthenticationError(t *testing.T) {
 	// Test with wrapped error
 	innerErr := errors.New("connection failed")

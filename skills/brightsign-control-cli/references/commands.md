@@ -1,11 +1,19 @@
 # `bsn-*` command index
 
-All 66 command-line programs, grouped by subsystem. Each builds to `bin/<name>` via
-`make build`. Run `<name> --help` for exact flags; `examples/README.md` has the exhaustive
-per-command reference.
+All 65 command-line programs, grouped by subsystem. Each builds to `bin/<name>` via
+`make build`. Run `<name> --help` for exact flags; `examples/README.md` has per-command
+flag detail for most commands (a handful of newer commands aren't in it yet — `--help`
+always works).
 
 Naming: `bsn-[<subsystem>-]<object>-<verb>` — verb last; read-only `info`/`status`
 commands may omit the verb.
+
+**Skip-confirmation flag varies by command.** Destructive/state-changing commands prompt
+unless you pass a flag, but which flag is not uniform: `-y` only, `--force` only, or both
+as true aliases, depending on the command. The Purpose column below names the exact flag(s)
+each one accepts — passing the wrong one is a hard "flag provided but not defined" error,
+not a silent no-op. Several of these (noted below) also *require* the skip-confirmation
+flag when `--json` is set, since they cannot show an interactive prompt in that mode.
 
 ## Authentication and account helpers (4)
 
@@ -13,26 +21,25 @@ commands may omit the verb.
 |---|---|
 | `bsn-auth-info` | Authenticate with BrightSign Control and display equivalent curl calls; writes a reusable `.token` file. |
 | `bsn-token-test` | Test that authentication succeeds and the token is valid. |
-| `bsn-generate-token-json` | Generate a `.token` JSON file for reuse by other tools and scripts. |
+| `bsn-generate-token-json` | Generate a device **registration** token as a `bsnDeviceRegistrationTokenEntity` JSON object, ready to embed in a B-Deploy raw setup JSON (for `bsn-bdeploy-setup-add-raw`). Not the auth `.token` file `bsn-auth-info` writes — see `bsn-regtoken-get` for the equivalent that returns just the bare token string. |
 | `bsn-endpoints-test` | Probe BrightSign Control API endpoints for reachability and validity. |
 
-## Account device management (11)
+## Account device management (10)
 
 The cloud's inventory view of registered players.
 
 | Command | Purpose |
 |---|---|
-| `bsn-device-list` | List and query registered devices, with filtering and pagination. |
-| `bsn-device-find` | Find a registered device by serial number or other criteria. |
+| `bsn-device-list` | List and query registered devices, with filtering and pagination. Requires `--network`/`BS_NETWORK`. |
+| `bsn-device-find` | Find a registered device by serial number by searching **across all networks** you have access to — no `--network` needed or accepted. Use this when you don't know which network a serial belongs to. |
 | `bsn-device-info` | Get real-time device information (via rDWS under the hood). |
 | `bsn-device-status` | Get device status information. |
 | `bsn-device-errors` | Retrieve device error logs. |
-| `bsn-device-operations` | View operations queued/performed on devices. |
 | `bsn-device-downloads` | View content downloads on devices. |
-| `bsn-device-delete` | Delete devices from BrightSign Control (destructive). |
-| `bsn-device-group-change` | Change a device's group assignment. |
-| `bsn-device-ldws-enable` | Get / enable / disable a device's local Diagnostic Web Server via the cloud. |
-| `bsn-device-ldws-password` | Enable local DWS and set/change/clear its password via the cloud. |
+| `bsn-device-delete` | Delete devices from BrightSign Control (destructive; `--force` or `-y`, true aliases). |
+| `bsn-device-group-change` | Change a device's group assignment. No `--network` flag — set `BS_NETWORK` in the environment. Assigning to a group name that doesn't already exist blocks on an interactive y/N prompt with **no flag to skip it** — don't use an unverified group name in a script. |
+| `bsn-device-ldws-enable` | Get / enable / disable a device's local Diagnostic Web Server via the cloud (`-y` to skip the enable/disable confirmation). |
+| `bsn-device-ldws-password` | Enable local DWS and set/change/clear its password via the cloud (`-y` to skip confirmation). |
 
 ## Groups (3)
 
@@ -40,7 +47,7 @@ The cloud's inventory view of registered players.
 |---|---|
 | `bsn-group-info` | Retrieve group information. |
 | `bsn-group-update` | Update group settings. |
-| `bsn-group-delete` | Delete groups (destructive). |
+| `bsn-group-delete` | Delete groups (destructive; `--force` or `-y`, true aliases). |
 
 ## Subscriptions (3)
 
@@ -55,7 +62,7 @@ The cloud's inventory view of registered players.
 | Command | Purpose |
 |---|---|
 | `bsn-regtoken-get` | Create/fetch a device registration token used for provisioning. |
-| `bsn-regtoken-revoke` | Revoke a device registration token. |
+| `bsn-regtoken-revoke` | Revoke a device registration token (destructive; `--force` only — `-y` is not accepted). |
 | `bsn-device-reg-script` | Mint a token and emit a ready-to-run **registration script** (`--type brs` or `sh`) that writes the five opt-out keys and reboots. Written to stdout, or to `--file <path>`. See `opt-out-provisioning.md`. |
 
 ## B-Deploy provisioning (12)
@@ -69,12 +76,12 @@ Setup records plus the device associations that let a player self-configure on f
 | `bsn-bdeploy-setup-get` | Retrieve a specific B-Deploy setup record. |
 | `bsn-bdeploy-setup-list` | List all B-Deploy setup records for a network. |
 | `bsn-bdeploy-setup-update` | Update an existing B-Deploy setup record. |
-| `bsn-bdeploy-setup-delete` | Delete setup records by ID or package name (destructive). |
+| `bsn-bdeploy-setup-delete` | Delete setup records by ID or package name (destructive; `--force` only — `-y` is not accepted). |
 | `bsn-bdeploy-device-associate` | Associate or dissociate a device with a B-Deploy setup. |
 | `bsn-bdeploy-device-list` | List B-Deploy devices on a network, optionally filtered by setup. |
 | `bsn-bdeploy-device-get` | Get a B-Deploy device setup record by serial number. |
-| `bsn-bdeploy-device-find` | Find a B-Deploy device by serial number. |
-| `bsn-bdeploy-device-delete` | Permanently remove a device from B-Deploy (destructive). |
+| `bsn-bdeploy-device-find` | Find a B-Deploy device by serial number by searching **across all networks** — no `--network` needed or accepted. |
+| `bsn-bdeploy-device-delete` | Permanently remove a device from B-Deploy (destructive; `--force` only — `-y` is not accepted). |
 | `bsn-render-setup-template` | Render a B-Deploy setup template into a concrete JSON config. |
 
 ## Remote DWS — live single-player control (30)
@@ -84,17 +91,17 @@ Every `bsn-rdws-*` command targets one player by `--serial` and acts on it now.
 ### Lifecycle
 | Command | Purpose |
 |---|---|
-| `bsn-rdws-reboot` | Remotely reboot a player (supports normal/crash/factory-reset/disable-autorun modes). |
-| `bsn-rdws-reprovision` | Re-provision a player. |
-| `bsn-rdws-storage-reformat` | Remotely reformat a storage device on a player (destructive). |
-| `bsn-rdws-firmware-download` | Remotely download and apply a firmware update. |
+| `bsn-rdws-reboot` | Remotely reboot a player (`--type`/`-t` normal/crash/factoryreset/disableautorun — no hyphens in the value). Always prompts unless `-y`/`--force` (true aliases); **required** when combined with `--json`, which cannot prompt. |
+| `bsn-rdws-reprovision` | Re-provision a player (destructive; `-y` only — `--force` is not accepted; required with `--json`). |
+| `bsn-rdws-storage-reformat` | Remotely reformat a storage device on a player (destructive; `-y` only — `--force` is not accepted; required with `--json`). |
+| `bsn-rdws-firmware-download` | Remotely download and apply a firmware update (`-y` only to skip confirmation; required with `--json`). |
 
 ### Files
 | Command | Purpose |
 |---|---|
 | `bsn-rdws-files-list` | List files and directories on player storage. |
 | `bsn-rdws-files-upload` | Upload a file to player storage. |
-| `bsn-rdws-files-delete` | Delete a file from player storage (destructive). |
+| `bsn-rdws-files-delete` | Delete a file from player storage (destructive; `--force` only — `-y` is not accepted; required with `--json`). |
 | `bsn-rdws-files-rename` | Rename a file on player storage. |
 | `bsn-rdws-files-create-folder` | Create a folder on player storage. |
 
@@ -102,7 +109,7 @@ Every `bsn-rdws-*` command targets one player by `--serial` and acts on it now.
 | Command | Purpose |
 |---|---|
 | `bsn-rdws-registry-get` | Read player registry values. |
-| `bsn-rdws-registry-set` | Write player registry values. |
+| `bsn-rdws-registry-set` | Write player registry values (`-y`/`--force`, true aliases, to skip confirmation; required with `--json`). |
 
 ### Inspect and diagnose
 | Command | Purpose |

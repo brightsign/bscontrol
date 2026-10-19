@@ -239,12 +239,6 @@ type (
 	// DeviceDownloadList represents a list of device downloads
 	DeviceDownloadList = types.DeviceDownloadList
 
-	// DeviceOperation represents an operation performed on a device
-	DeviceOperation = types.DeviceOperation
-
-	// DeviceOperationList represents a list of device operations
-	DeviceOperationList = types.DeviceOperationList
-
 	// RDWSLocalDWSInfo represents the current state of local DWS
 	RDWSLocalDWSInfo = types.RDWSLocalDWSInfo
 

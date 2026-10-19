@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -51,6 +52,43 @@ func (e *NetworkError) Error() string {
 
 func (e *NetworkError) Unwrap() error {
 	return e.Err
+}
+
+// DecodeError indicates a response was received but its body could not be
+// decoded into the caller's expected type. This is deliberately NOT a
+// NetworkError: a response did arrive, so there is no connectivity problem,
+// and retrying would only re-fetch the same unparseable body. It
+// intentionally matches neither IsNetworkError nor IsRetryableError.
+type DecodeError struct {
+	Operation string
+	Err       error
+}
+
+func (e *DecodeError) Error() string {
+	return fmt.Sprintf("failed to decode response for %s: %v", e.Operation, e.Err)
+}
+
+func (e *DecodeError) Unwrap() error {
+	return e.Err
+}
+
+// AppError indicates an application-level failure reported inside an
+// otherwise successful (2xx) HTTP response body — for example a B-Deploy
+// JSON envelope carrying its own "error" field, or a response missing a
+// field the caller required. It deliberately has no StatusCode: unlike
+// APIError, there is no real HTTP status to report, and claiming one (such as
+// 0) would misrepresent this as a malformed or unknown-status API error.
+type AppError struct {
+	Code    string
+	Message string
+	Details string
+}
+
+func (e *AppError) Error() string {
+	if e.Details != "" {
+		return fmt.Sprintf("application error (%s): %s - %s", e.Code, e.Message, e.Details)
+	}
+	return fmt.Sprintf("application error (%s): %s", e.Code, e.Message)
 }
 
 // ConfigurationError indicates configuration-related errors.
@@ -107,6 +145,23 @@ func NewNetworkError(operation string, err error) *NetworkError {
 	}
 }
 
+// NewDecodeError creates a DecodeError.
+func NewDecodeError(operation string, err error) *DecodeError {
+	return &DecodeError{
+		Operation: operation,
+		Err:       err,
+	}
+}
+
+// NewAppError creates an AppError.
+func NewAppError(code, message, details string) *AppError {
+	return &AppError{
+		Code:    code,
+		Message: message,
+		Details: details,
+	}
+}
+
 // NewConfigError creates a ConfigurationError.
 func NewConfigError(field, reason, suggest string) *ConfigurationError {
 	return &ConfigurationError{
@@ -126,14 +181,18 @@ func NewValidationError(field string, value interface{}, reason string) *Validat
 }
 
 // IsAuthenticationError checks if an error is authentication-related.
+//
+// It unwraps the error chain (errors.As) so a service-layer error that wraps
+// the HTTP layer's typed error is still classified correctly.
 func IsAuthenticationError(err error) bool {
-	_, ok := err.(*AuthenticationError)
-	if ok {
+	var authErr *AuthenticationError
+	if errors.As(err, &authErr) {
 		return true
 	}
 
 	// Also check for API errors with authentication status codes
-	if apiErr, ok := err.(*APIError); ok {
+	var apiErr *APIError
+	if errors.As(err, &apiErr) {
 		return apiErr.StatusCode == http.StatusUnauthorized || apiErr.StatusCode == http.StatusForbidden
 	}
 
@@ -142,24 +201,26 @@ func IsAuthenticationError(err error) bool {
 
 // IsNetworkError checks if an error is network-related.
 func IsNetworkError(err error) bool {
-	_, ok := err.(*NetworkError)
-	return ok
+	var netErr *NetworkError
+	return errors.As(err, &netErr)
 }
 
 // IsConfigurationError checks if an error is configuration-related.
 func IsConfigurationError(err error) bool {
-	_, ok := err.(*ConfigurationError)
-	return ok
+	var configErr *ConfigurationError
+	return errors.As(err, &configErr)
 }
 
 // IsRetryableError checks if an error might succeed on retry.
 func IsRetryableError(err error) bool {
-	if apiErr, ok := err.(*APIError); ok {
+	var apiErr *APIError
+	if errors.As(err, &apiErr) {
 		// Retry on server errors and rate limiting
 		return apiErr.StatusCode >= 500 || apiErr.StatusCode == http.StatusTooManyRequests
 	}
 
-	if _, ok := err.(*NetworkError); ok {
+	var netErr *NetworkError
+	if errors.As(err, &netErr) {
 		// Retry network errors (connection failures, etc.)
 		return true
 	}

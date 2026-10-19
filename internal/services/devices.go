@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	stderrors "errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -45,8 +46,6 @@ type DeviceService interface {
 	DeleteGroup(ctx context.Context, id int) error
 	GetDownloads(ctx context.Context, id int) (*types.DeviceDownloadList, error)
 	GetDownloadsBySerial(ctx context.Context, serial string) (*types.DeviceDownloadList, error)
-	GetOperations(ctx context.Context, id int) (*types.DeviceOperationList, error)
-	GetOperationsBySerial(ctx context.Context, serial string) (*types.DeviceOperationList, error)
 }
 
 // deviceService implements the DeviceService interface.
@@ -112,7 +111,7 @@ func (s *deviceService) List(ctx context.Context, opts ...ListOption) (*types.De
 	var deviceList types.DeviceList
 	err = s.httpClient.GetWithAuth(ctx, token, baseURL, &deviceList)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_list_failed", "Failed to list devices", err.Error())
+		return nil, fmt.Errorf("failed to list devices: %w", err)
 	}
 
 	return &deviceList, nil
@@ -147,8 +146,7 @@ func (s *deviceService) Get(ctx context.Context, serial string) (*types.Device, 
 	var device types.Device
 	err = s.httpClient.GetWithAuth(ctx, token, deviceURL, &device)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_get_failed",
-			fmt.Sprintf("Failed to get device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get device with serial '%s': %w", serial, err)
 	}
 
 	return &device, nil
@@ -183,8 +181,7 @@ func (s *deviceService) GetByID(ctx context.Context, id int) (*types.Device, err
 	var device types.Device
 	err = s.httpClient.GetWithAuth(ctx, token, deviceURL, &device)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_get_failed",
-			fmt.Sprintf("Failed to get device with ID %d", id), err.Error())
+		return nil, fmt.Errorf("failed to get device with ID %d: %w", id, err)
 	}
 
 	return &device, nil
@@ -222,8 +219,7 @@ func (s *deviceService) Update(ctx context.Context, id int, device *types.Device
 	var updatedDevice types.Device
 	err = s.httpClient.PutWithAuth(ctx, token, deviceURL, device, &updatedDevice)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_update_failed",
-			fmt.Sprintf("Failed to update device with ID %d", id), err.Error())
+		return nil, fmt.Errorf("failed to update device with ID %d: %w", id, err)
 	}
 
 	return &updatedDevice, nil
@@ -269,7 +265,7 @@ func (s *deviceService) Delete(ctx context.Context, id int) error {
 	// Make the API request - DELETE returns no content on success
 	err = s.httpClient.DeleteWithAuth(ctx, token, deleteURL, nil)
 	if err != nil {
-		return errors.NewAPIError(0, "device_delete_failed", "Failed to delete device", err.Error())
+		return fmt.Errorf("failed to delete device: %w", err)
 	}
 
 	return nil
@@ -316,7 +312,7 @@ func (s *deviceService) ListGroups(ctx context.Context) (*types.GroupList, error
 	var groups types.GroupList
 	err = s.httpClient.GetWithAuth(ctx, token, groupsURL, &groups)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "groups_list_failed", "Failed to list groups", err.Error())
+		return nil, fmt.Errorf("failed to list groups: %w", err)
 	}
 
 	return &groups, nil
@@ -354,8 +350,7 @@ func (s *deviceService) CreateGroup(ctx context.Context, name string) (*types.Gr
 	var group types.Group
 	err = s.httpClient.PostWithAuth(ctx, token, groupsURL, groupRequest, &group)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "group_create_failed",
-			fmt.Sprintf("Failed to create group '%s'", name), err.Error())
+		return nil, fmt.Errorf("failed to create group '%s': %w", name, err)
 	}
 
 	return &group, nil
@@ -390,8 +385,7 @@ func (s *deviceService) GetGroup(ctx context.Context, id int) (*types.Group, err
 	var group types.Group
 	err = s.httpClient.GetWithAuth(ctx, token, groupURL, &group)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "group_get_failed",
-			fmt.Sprintf("Failed to get group with ID %d", id), err.Error())
+		return nil, fmt.Errorf("failed to get group with ID %d: %w", id, err)
 	}
 
 	return &group, nil
@@ -426,8 +420,7 @@ func (s *deviceService) GetGroupByName(ctx context.Context, name string) (*types
 	var group types.Group
 	err = s.httpClient.GetWithAuth(ctx, token, groupURL, &group)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "group_get_failed",
-			fmt.Sprintf("Failed to get group with name '%s'", name), err.Error())
+		return nil, fmt.Errorf("failed to get group with name '%s': %w", name, err)
 	}
 
 	return &group, nil
@@ -465,8 +458,7 @@ func (s *deviceService) UpdateGroup(ctx context.Context, id int, group *types.Gr
 	var updatedGroup types.Group
 	err = s.httpClient.PutWithAuth(ctx, token, groupURL, group, &updatedGroup)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "group_update_failed",
-			fmt.Sprintf("Failed to update group with ID %d", id), err.Error())
+		return nil, fmt.Errorf("failed to update group with ID %d: %w", id, err)
 	}
 
 	return &updatedGroup, nil
@@ -500,8 +492,7 @@ func (s *deviceService) DeleteGroup(ctx context.Context, id int) error {
 	// Make the API request - DELETE returns no content on success
 	err = s.httpClient.DeleteWithAuth(ctx, token, groupURL, nil)
 	if err != nil {
-		return errors.NewAPIError(0, "group_delete_failed",
-			fmt.Sprintf("Failed to delete group with ID %d", id), err.Error())
+		return fmt.Errorf("failed to delete group with ID %d: %w", id, err)
 	}
 
 	return nil
@@ -536,8 +527,7 @@ func (s *deviceService) GetDownloads(ctx context.Context, id int) (*types.Device
 	var downloadList types.DeviceDownloadList
 	err = s.httpClient.GetWithAuth(ctx, token, downloadsURL, &downloadList)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_downloads_get_failed",
-			fmt.Sprintf("Failed to get downloads for device with ID %d", id), err.Error())
+		return nil, fmt.Errorf("failed to get downloads for device with ID %d: %w", id, err)
 	}
 
 	return &downloadList, nil
@@ -557,58 +547,6 @@ func (s *deviceService) GetDownloadsBySerial(ctx context.Context, serial string)
 
 	// Use the ID to get downloads
 	return s.GetDownloads(ctx, device.ID)
-}
-
-// GetOperations retrieves the list of operations for a device by device ID.
-func (s *deviceService) GetOperations(ctx context.Context, id int) (*types.DeviceOperationList, error) {
-	if id <= 0 {
-		return nil, errors.NewValidationError("id", fmt.Sprintf("%d", id), "device ID must be positive")
-	}
-
-	// Ensure we have authentication and network context
-	if err := s.authManager.EnsureValid(ctx); err != nil {
-		return nil, err
-	}
-
-	if err := s.authManager.EnsureNetworkSet(ctx); err != nil {
-		return nil, err
-	}
-
-	// Build URL
-	operationsURL := fmt.Sprintf("%s/%s/Devices/%d/Operations",
-		s.config.BSNBaseURL, s.config.APIVersion, id)
-
-	// Get access token
-	token, err := s.authManager.GetToken()
-	if err != nil {
-		return nil, err
-	}
-
-	// Make the API request
-	var operationList types.DeviceOperationList
-	err = s.httpClient.GetWithAuth(ctx, token, operationsURL, &operationList)
-	if err != nil {
-		return nil, errors.NewAPIError(0, "device_operations_get_failed",
-			fmt.Sprintf("Failed to get operations for device with ID %d", id), err.Error())
-	}
-
-	return &operationList, nil
-}
-
-// GetOperationsBySerial retrieves the list of operations for a device by serial number.
-func (s *deviceService) GetOperationsBySerial(ctx context.Context, serial string) (*types.DeviceOperationList, error) {
-	if serial == "" {
-		return nil, errors.NewValidationError("serial", serial, "device serial cannot be empty")
-	}
-
-	// First get the device to retrieve its ID
-	device, err := s.Get(ctx, serial)
-	if err != nil {
-		return nil, err
-	}
-
-	// Use the ID to get operations
-	return s.GetOperations(ctx, device.ID)
 }
 
 // ListOption represents an option for device listing.
@@ -818,15 +756,15 @@ func (s *deviceService) GetErrorsBySerial(ctx context.Context, serial string, op
 		// If the endpoint doesn't exist, return empty list
 		// This is because the API documentation shows device errors might be
 		// retrieved through other means (e.g., Downloads, Operations, or RDWS logs)
-		if httpErr, ok := err.(*errors.APIError); ok && httpErr.StatusCode == 404 {
+		var httpErr *errors.APIError
+		if stderrors.As(err, &httpErr) && httpErr.StatusCode == 404 {
 			return &types.DeviceErrorList{
 				Items:       []types.DeviceError{},
 				IsTruncated: false,
 				TotalCount:  0,
 			}, nil
 		}
-		return nil, errors.NewAPIError(0, "device_errors_failed",
-			fmt.Sprintf("Failed to get errors for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get errors for device with serial '%s': %w", serial, err)
 	}
 
 	return &errorList, nil
@@ -926,8 +864,7 @@ func (s *deviceService) RebootBySerial(ctx context.Context, serial string, reboo
 
 	err = s.httpClient.PutWithAuth(ctx, token, rebootURL, requestBody, &rawResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_reboot_failed",
-			fmt.Sprintf("Failed to reboot device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to reboot device with serial '%s': %w", serial, err)
 	}
 
 	// Convert the rDWS response to our RebootResponse format
@@ -1029,8 +966,7 @@ func (s *deviceService) TakeSnapshotBySerial(ctx context.Context, serial string,
 
 	err = s.httpClient.PostWithAuth(ctx, token, snapshotURL, requestBody, &rawResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_snapshot_failed",
-			fmt.Sprintf("Failed to take snapshot of device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to take snapshot of device with serial '%s': %w", serial, err)
 	}
 
 	// Return the snapshot response
@@ -1089,8 +1025,7 @@ func (s *deviceService) ReprovisionBySerial(ctx context.Context, serial string) 
 
 	err = s.httpClient.GetWithAuth(ctx, token, reprovisionURL, &rawResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_reprovision_failed",
-			fmt.Sprintf("Failed to re-provision device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to re-provision device with serial '%s': %w", serial, err)
 	}
 
 	// Return the re-provision response
@@ -1149,8 +1084,7 @@ func (s *deviceService) GetDWSPasswordBySerial(ctx context.Context, serial strin
 
 	err = s.httpClient.GetWithAuth(ctx, token, dwsPasswordURL, &rawResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_dws_password_get_failed",
-			fmt.Sprintf("Failed to get DWS password info for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to get DWS password info for device with serial '%s': %w", serial, err)
 	}
 
 	// Return the DWS password response
@@ -1218,8 +1152,7 @@ func (s *deviceService) SetDWSPasswordBySerial(ctx context.Context, serial strin
 
 	err = s.httpClient.PutWithAuth(ctx, token, dwsPasswordURL, requestBody, &rawResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "device_dws_password_set_failed",
-			fmt.Sprintf("Failed to set DWS password for device with serial '%s'", serial), err.Error())
+		return nil, fmt.Errorf("failed to set DWS password for device with serial '%s': %w", serial, err)
 	}
 
 	// Return the DWS password response

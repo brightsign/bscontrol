@@ -100,12 +100,12 @@ func (s *bDeployService) GetSetupRecords(ctx context.Context, opts ...BDeployLis
 	var apiResponse types.BDeployAPIResponse
 	err = s.httpClient.GetWithAuth(ctx, token, baseURL, &apiResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_records_failed", "Failed to get B-Deploy setup records", err.Error())
+		return nil, fmt.Errorf("failed to get B-Deploy setup records: %w", err)
 	}
 
 	// Check for API-level errors
 	if apiResponse.Error != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
+		return nil, errors.NewAppError("bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
 	}
 
 	// Convert the response to our expected format
@@ -142,12 +142,12 @@ func (s *bDeployService) GetSetupRecord(ctx context.Context, setupID string) (*t
 	var apiResponse types.BDeployFullRecordAPIResponse
 	err = s.httpClient.GetWithAuth(ctx, token, getURL, &apiResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_get_failed", "Failed to get B-Deploy setup record", err.Error())
+		return nil, fmt.Errorf("failed to get B-Deploy setup record: %w", err)
 	}
 
 	// Check for API-level errors
 	if apiResponse.Error != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
+		return nil, errors.NewAppError("bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
 	}
 
 	// Check if any records were returned
@@ -180,7 +180,7 @@ func (s *bDeployService) GetSetupRecordRaw(ctx context.Context, setupID string) 
 
 	data, err := s.httpClient.GetBytesWithAuth(ctx, token, getURL)
 	if err != nil {
-		return "", errors.NewAPIError(0, "bdeploy_get_failed", "Failed to get B-Deploy setup record", err.Error())
+		return "", fmt.Errorf("failed to get B-Deploy setup record: %w", err)
 	}
 
 	// Parse just enough to extract the result array
@@ -189,11 +189,11 @@ func (s *bDeployService) GetSetupRecordRaw(ctx context.Context, setupID string) 
 		Result []json.RawMessage `json:"result"`
 	}
 	if err := json.Unmarshal(data, &envelope); err != nil {
-		return "", errors.NewAPIError(0, "bdeploy_parse_failed", "Failed to parse B-Deploy API response", err.Error())
+		return "", fmt.Errorf("failed to parse B-Deploy API response: %w", err)
 	}
 
 	if envelope.Error != nil {
-		return "", errors.NewAPIError(0, "bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", envelope.Error))
+		return "", errors.NewAppError("bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", envelope.Error))
 	}
 
 	if len(envelope.Result) == 0 {
@@ -227,12 +227,12 @@ func (s *bDeployService) AddSetupRecord(ctx context.Context, record *types.BDepl
 	var apiResponse types.BDeployCreateAPIResponse
 	err = s.httpClient.PostWithAuth(ctx, token, createURL, record, &apiResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_create_failed", "Failed to create B-Deploy setup record", err.Error())
+		return nil, fmt.Errorf("failed to create B-Deploy setup record: %w", err)
 	}
 
 	// Check for API-level errors
 	if apiResponse.Error != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
+		return nil, errors.NewAppError("bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
 	}
 
 	// Convert to simplified response format with just the ID
@@ -269,12 +269,12 @@ func (s *bDeployService) AddSetupRecordRaw(ctx context.Context, setupJSON string
 	var apiResponse types.BDeployCreateAPIResponse
 	err = s.httpClient.PostWithAuth(ctx, token, createURL, setupJSON, &apiResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_create_failed", "Failed to create B-Deploy setup record", err.Error())
+		return nil, fmt.Errorf("failed to create B-Deploy setup record: %w", err)
 	}
 
 	// Check for API-level errors
 	if apiResponse.Error != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
+		return nil, errors.NewAppError("bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
 	}
 
 	response := &types.BDeployCreateResponse{
@@ -315,12 +315,12 @@ func (s *bDeployService) UpdateSetupRecord(ctx context.Context, setupID string, 
 	var apiResponse types.BDeployUpdateAPIResponse
 	err = s.httpClient.PutWithAuth(ctx, token, updateURL, record, &apiResponse)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_update_failed", "Failed to update B-Deploy setup record", err.Error())
+		return nil, fmt.Errorf("failed to update B-Deploy setup record: %w", err)
 	}
 
 	// Check for API-level errors
 	if apiResponse.Error != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
+		return nil, errors.NewAppError("bdeploy_api_error", "B-Deploy API returned an error", fmt.Sprintf("%v", apiResponse.Error))
 	}
 
 	// Return the updated setup record
@@ -352,7 +352,7 @@ func (s *bDeployService) DeleteSetupRecord(ctx context.Context, setupID string) 
 	var response types.BDeployDeleteResponse
 	err = s.httpClient.DeleteWithAuth(ctx, token, deleteURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "bdeploy_delete_failed", "Failed to delete B-Deploy setup record", err.Error())
+		return nil, fmt.Errorf("failed to delete B-Deploy setup record: %w", err)
 	}
 
 	return &response, nil

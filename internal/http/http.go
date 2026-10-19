@@ -13,6 +13,20 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+// classifyExecuteError turns a resty request failure into the right typed
+// error. When resp has a real status code, a response was received and the
+// failure is resty failing to decode its body into the caller's result (or
+// error) type — deterministic, so it must be a DecodeError, never a
+// NetworkError: retrying would only re-fetch the same unparseable body. This
+// mirrors the check the client's own retry condition already uses (see
+// AddRetryCondition below) to decide the same question.
+func classifyExecuteError(operation string, resp *resty.Response, err error) error {
+	if resp != nil && resp.StatusCode() != 0 {
+		return errors.NewDecodeError(operation, err)
+	}
+	return errors.NewNetworkError(operation, err)
+}
+
 // isIdempotent reports whether an HTTP method is safe to retry. POST and PATCH
 // are not: retrying them can duplicate a non-idempotent side effect.
 func isIdempotent(method string) bool {
@@ -172,7 +186,7 @@ func (h *HTTPClient) Do(ctx context.Context, req *Request) error {
 	// Execute request
 	resp, err := request.Execute(req.Method, req.URL)
 	if err != nil {
-		return errors.NewNetworkError(fmt.Sprintf("%s %s", req.Method, req.URL), err)
+		return classifyExecuteError(fmt.Sprintf("%s %s", req.Method, req.URL), resp, err)
 	}
 
 	// Check for API errors
@@ -264,10 +278,15 @@ func (h *HTTPClient) GetBytesWithAuth(ctx context.Context, token, url string) ([
 	}
 	request.SetError(&apiError)
 
-	// Execute request
+	// Execute request. This call sets no Result (it returns raw bytes), so
+	// unlike Do/PostForm resty cannot fail Get() with a decode error here — an
+	// unparseable error body on a non-2xx response just leaves apiError
+	// zero-valued and falls through to handleAPIError below. err != nil is
+	// therefore always a genuine transport failure, but classifyExecuteError
+	// is still used for consistency should that ever change.
 	resp, err := request.Get(url)
 	if err != nil {
-		return nil, errors.NewNetworkError(fmt.Sprintf("GET %s", url), err)
+		return nil, classifyExecuteError(fmt.Sprintf("GET %s", url), resp, err)
 	}
 
 	// Check for HTTP errors
@@ -349,7 +368,7 @@ func (h *HTTPClient) PostForm(ctx context.Context, url string, data map[string]s
 
 	resp, err := request.Post(url)
 	if err != nil {
-		return errors.NewNetworkError(fmt.Sprintf("POST %s", url), err)
+		return classifyExecuteError(fmt.Sprintf("POST %s", url), resp, err)
 	}
 
 	if !resp.IsSuccess() {
@@ -391,7 +410,7 @@ func (h *HTTPClient) PostFormWithAuth(ctx context.Context, clientID, clientSecre
 
 	resp, err := request.Post(url)
 	if err != nil {
-		return errors.NewNetworkError(fmt.Sprintf("POST %s", url), err)
+		return classifyExecuteError(fmt.Sprintf("POST %s", url), resp, err)
 	}
 
 	if !resp.IsSuccess() {

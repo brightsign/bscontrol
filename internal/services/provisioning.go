@@ -64,13 +64,12 @@ func (s *provisioningService) GenerateDeviceToken(ctx context.Context) (*types.B
 	var provisioningTokenURL = fmt.Sprintf("%s%s", s.config.BSNBaseURL, provisioningTokenPath)
 	err = s.httpClient.PostWithAuth(ctx, token, provisioningTokenURL, nil, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "token_generation_failed",
-			"Failed to generate device registration token", err.Error())
+		return nil, fmt.Errorf("failed to generate device registration token: %w", err)
 	}
 
 	// Validate response has required fields
 	if response.Token == "" {
-		return nil, errors.NewAPIError(0, "invalid_token_response",
+		return nil, errors.NewAppError("invalid_token_response",
 			"API returned empty token", "token field is empty")
 	}
 
@@ -108,8 +107,7 @@ func (s *provisioningService) ValidateDeviceToken(ctx context.Context, tokenValu
 	var response types.BSNTokenEntity
 	err = s.httpClient.GetWithAuth(ctx, token, validateURL, &response)
 	if err != nil {
-		return nil, errors.NewAPIError(0, "token_validation_failed",
-			"Failed to validate device registration token", err.Error())
+		return nil, fmt.Errorf("failed to validate device registration token: %w", err)
 	}
 
 	return &response, nil
@@ -144,8 +142,7 @@ func (s *provisioningService) RevokeRegistrationToken(ctx context.Context, token
 	// Make the API request - DELETE returns no content on success
 	err = s.httpClient.DeleteWithAuth(ctx, token, revokeURL, nil)
 	if err != nil {
-		return errors.NewAPIError(0, "token_revoke_failed",
-			"Failed to revoke device registration token", err.Error())
+		return fmt.Errorf("failed to revoke device registration token: %w", err)
 	}
 
 	return nil

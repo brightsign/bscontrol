@@ -63,8 +63,7 @@ func (s *deviceWebPageService) List(ctx context.Context) (*types.DeviceWebPageLi
 	// Make the request
 	var result types.DeviceWebPageList
 	if err := s.httpClient.GetWithAuth(ctx, token, webPagesURL, &result); err != nil {
-		return nil, errors.NewAPIError(0, "devicewebpages_list_failed",
-			"Failed to list device web pages", err.Error())
+		return nil, fmt.Errorf("failed to list device web pages: %w", err)
 	}
 
 	return &result, nil
@@ -98,8 +97,7 @@ func (s *deviceWebPageService) GetByID(ctx context.Context, id int) (*types.Devi
 	// Make the request
 	var result types.DeviceWebPage
 	if err := s.httpClient.GetWithAuth(ctx, token, webPageURL, &result); err != nil {
-		return nil, errors.NewAPIError(0, "devicewebpage_get_failed",
-			fmt.Sprintf("Failed to get device web page with ID %d", id), err.Error())
+		return nil, fmt.Errorf("failed to get device web page with ID %d: %w", id, err)
 	}
 
 	return &result, nil
