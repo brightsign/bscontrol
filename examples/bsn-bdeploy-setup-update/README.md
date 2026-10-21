@@ -9,7 +9,7 @@ Updates an existing B-Deploy setup record with new configuration values. This al
 - Preserves existing values for fields not specified in the update config
 
 **What This Program Does NOT Do:**
-- Does not create new setup records (use `bdeploy-add-setup` for that)
+- Does not create new setup records (use `bsn-bdeploy-setup-add` for that)
 - Does not automatically update players (players get the new config on next check-in)
 - Does not reassociate players with different setups
 
@@ -46,7 +46,7 @@ You can identify the setup to update using either:
 
 ### Option 1: Setup ID (--setup-id)
 
-Use the setup ID if you know it (e.g., from the output of `bdeploy-add-setup` or `bdeploy-list-setups`):
+Use the setup ID if you know it (e.g., from the output of `bsn-bdeploy-setup-add` or `bsn-bdeploy-setup-list`):
 
 ```bash
 ./bin/bsn-bdeploy-setup-update --setup-id 618fb7363a682fe7a40c73ca config.json
@@ -367,7 +367,7 @@ echo "Secret: ${BS_SECRET:0:8}..." # Shows first 8 chars only
 3. **Document Changes** - Keep a log of when and why setups were updated
 4. **Version Package Names** - Use versioned package names (v1, v2, v3) for tracking
 5. **Coordinate with Players** - Plan updates during maintenance windows
-6. **Verify After Update** - Always verify the update with `bdeploy-get-setup`
+6. **Verify After Update** - Always verify the update with `bsn-bdeploy-setup-get`
 
 ## Security Considerations
 
@@ -378,11 +378,11 @@ echo "Secret: ${BS_SECRET:0:8}..." # Shows first 8 chars only
 
 ## Related Examples
 
-- `bdeploy-add-setup` - Create new setup records
-- `bdeploy-get-setup` - View setup record details
-- `bdeploy-list-setups` - List all setup records
-- `bdeploy-delete-setup` - Delete setup records
-- `bdeploy-associate` - Associate players with setups
+- `bsn-bdeploy-setup-add` - Create new setup records
+- `bsn-bdeploy-setup-get` - View setup record details
+- `bsn-bdeploy-setup-list` - List all setup records
+- `bsn-bdeploy-setup-delete` - Delete setup records
+- `bsn-bdeploy-device-associate` - Associate players with setups
 
 ## API Reference
 

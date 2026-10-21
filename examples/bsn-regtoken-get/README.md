@@ -163,9 +163,9 @@ Then create the setup:
 
 ## Related Examples
 
-- `bdeploy-add-setup` - Create a complete B-Deploy setup record (includes automatic token generation)
-- `main-auth-info` - Get BSN.cloud authentication information
-- `bdeploy-list-setups` - List all B-Deploy setup records
+- `bsn-bdeploy-setup-add` - Create a complete B-Deploy setup record (includes automatic token generation)
+- `bsn-auth-info` - Get BSN.cloud authentication information
+- `bsn-bdeploy-setup-list` - List all B-Deploy setup records
 
 ## Troubleshooting
 
@@ -180,13 +180,13 @@ Then create the setup:
 
 - Verify the network name exists in your BSN.cloud account
 - Check that you have access to the specified network
-- Use `main-auth-info` to list available networks
+- Use `bsn-auth-info` to list available networks
 
 ### Error: "Multiple networks available"
 
 - Specify a network using `--network` flag
 - Or set `BS_NETWORK` environment variable
-- Run `main-auth-info` to see available networks
+- Run `bsn-auth-info` to see available networks
 
 ## Notes
 

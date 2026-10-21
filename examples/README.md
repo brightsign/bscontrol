@@ -1,6 +1,6 @@
 # Examples Documentation
 
-This directory contains 66 example programs demonstrating all SDK features. Each builds to `bin/<name>`; names follow `bsn-[<subsystem>-]<object>-<verb>`.
+This directory contains 65 example programs demonstrating all SDK features. Each builds to `bin/<name>`; names follow `bsn-[<subsystem>-]<object>-<verb>`.
 
 ## Quick Start
 
@@ -32,11 +32,11 @@ Most examples support:
 - `--verbose`: Show detailed output
 - `--json`: Output as JSON for scripting
 - `--timeout 30`: Request timeout in seconds
-- `--force` / `-y`: Skip confirmation prompts (destructive operations)
+- `-y` and/or `--force`: Skip confirmation prompts on destructive/state-changing operations — **not interchangeable on every command.** Some commands accept only `-y`, some only `--force`, some both (true aliases). See [Confirmation Prompts](#confirmation-prompts) below for the exact flag(s) per command.
 
 ---
 
-## Authentication Examples (2)
+## Authentication Examples (4)
 
 ### bsn-auth-info
 Authenticate with BSN.cloud and display curl command examples.
@@ -62,9 +62,41 @@ Test authentication and token validity.
 ./bin/bsn-token-test
 ```
 
+### bsn-generate-token-json
+Generate a device **registration** token and print the `bsnDeviceRegistrationTokenEntity`
+JSON object to stdout, ready to paste into a setup JSON for `bsn-bdeploy-setup-add-raw`.
+Not the auth `.token` file `bsn-auth-info` writes — see `bsn-regtoken-get` for the
+equivalent that returns just the bare token string.
+
+**Flags:**
+- `--network <name>` / `-n`: Network name (env: `BS_NETWORK`, required)
+- `--verbose`: Show scope/validity details on stderr
+- `--timeout 30`: Request timeout in seconds
+
+**Usage:**
+```bash
+./bin/bsn-generate-token-json --network "Production" > token.json
+jq --slurpfile tok token.json '.bsnDeviceRegistrationTokenEntity = $tok[0]' setup.json
+```
+
+### bsn-endpoints-test
+Probe a fixed set of BrightSign Control API endpoints (both the `2022/06/REST` and
+`2024-02` version paths) for reachability, reading the bearer token from the `./.token`
+file `bsn-auth-info` writes. Reports what each HTTP status would mean (200 success, 401
+invalid token, 403 insufficient permissions, 404 endpoint doesn't exist).
+
+**Flags:**
+- `--json`: Output as JSON
+
+**Usage:**
+```bash
+./bin/bsn-auth-info          # writes ./.token first
+./bin/bsn-endpoints-test
+```
+
 ---
 
-## B-Deploy Setup Management (10)
+## B-Deploy Setup Management (15)
 
 ### bsn-bdeploy-setup-add
 Create a B-Deploy setup record using JSON configuration.
@@ -82,6 +114,32 @@ Create a B-Deploy setup record using JSON configuration.
 ```bash
 ./bin/bsn-bdeploy-setup-add config.json
 ./bin/bsn-bdeploy-setup-add --verbose examples/bsn-bdeploy-setup-add/config.json
+```
+
+### bsn-bdeploy-setup-add-raw
+Create a B-Deploy setup record from raw JSON, preserving all fields verbatim (no Go-struct
+round-trip, unlike `bsn-bdeploy-setup-add`). Two modes: template mode (fill in
+`--package-name`/`BS_PACKAGE_NAME` against the built-in setup template) or pass a JSON
+config file as a positional argument.
+
+**Flags:**
+- `--template <path>`: Path to setup template file (template mode)
+- `--package-name <name>`: Package name (required in template mode, env: `BS_PACKAGE_NAME`)
+- `--device-name <name>`: Device name (optional, env: `BS_DEVICE_NAME`)
+- `--device-description <text>`: Device description (optional, env: `BS_DEVICE_DESCRIPTION`)
+- `--network <name>` / `-n`: Network name (env: `BS_NETWORK`)
+- `--username <name>`: BrightSign Control username (env: `BS_CLIENT_ID`)
+- `--group <name>`: BSN group name (default: `Default`)
+- `--setup-type <type>`: Setup type: `bsn`, `standalone`, `lfn` (default: `bsn`)
+- `--verbose`, `--json`, `--timeout 30`
+
+**Usage:**
+```bash
+# Template mode
+./bin/bsn-bdeploy-setup-add-raw --package-name "retail-v1" --network "Production"
+
+# Raw config-file mode
+./bin/bsn-bdeploy-setup-add-raw config.json
 ```
 
 ### bsn-bdeploy-device-associate
@@ -196,6 +254,21 @@ List all B-Deploy devices on a network, with optional filtering by setup.
 ./bin/bsn-bdeploy-device-list --setup-name "my-setup"
 ```
 
+### bsn-bdeploy-device-find
+Find a B-Deploy device by serial number by searching **across all networks** you have
+access to — no `--network` flag needed or accepted. Use this when you don't know which
+network a serial belongs to.
+
+**Flags:**
+- `--serial <serial>`: Device serial number to search for (required)
+- `--json`: Output as JSON
+
+**Usage:**
+```bash
+./bin/bsn-bdeploy-device-find --serial D7E915000581
+./bin/bsn-bdeploy-device-find --serial D7E915000581 --json
+```
+
 ### bsn-bdeploy-setup-list
 List all B-Deploy setup records for a network.
 
@@ -246,9 +319,80 @@ Mint a registration token for a network and emit a ready-to-run player **registr
 # sh is for an insecure player, run from its shell, e.g.:  bash /storage/sd/register-player.sh
 ```
 
+### bsn-regtoken-get
+Create/fetch a device registration token for provisioning. The token has `cert` scope, is
+valid two years by default, and multiple devices can share the same token.
+
+**Flags:**
+- `--network <name>` / `-n`: Network name to use (overrides `BS_NETWORK`)
+- `--verbose`: Show scope/validity details
+- `--json`: Output as JSON only
+- `--timeout 30`: Request timeout in seconds
+
+**Usage:**
+```bash
+./bin/bsn-regtoken-get --network "My Network"
+BSNRT=$(./bin/bsn-regtoken-get --network "My Network" --json | jq -r '.token')
+```
+
+### bsn-regtoken-revoke
+Revoke a device registration token (destructive; `--force` only — `-y` is not accepted).
+Tokens with `cert` scope are shared by every device provisioned with them, so revoking one
+breaks registration for **all** of them. This cannot be undone.
+
+**Flags:**
+- `--token <token>`: Device registration token to revoke (required)
+- `--network <name>` / `-n`: Network name to use (overrides `BS_NETWORK`)
+- `--force`: Skip confirmation prompt
+- `--verbose`, `--json`, `--timeout 30`
+
+**Usage:**
+```bash
+./bin/bsn-regtoken-revoke --token "<token>"              # prompts for confirmation
+./bin/bsn-regtoken-revoke --token "<token>" --force
+```
+
+### bsn-render-setup-template
+Render a Go-template setup JSON file by substituting template variables from flags/env vars
+and generating a fresh device registration token, outputting the complete setup JSON to
+stdout — ready for `bsn-bdeploy-setup-add-raw`.
+
+**Flags:**
+- `--username <name>`: BrightSign Control username/email for `bDeploy.username` (required, env: `BS_USERNAME`)
+- `--network <name>` / `-n`: Network name (required, env: `BS_NETWORK`)
+- `--package-name <name>`: Package name (required)
+- `--setup-type <type>`: Setup type: `bsn`, `standalone`, `lfn` (env: `BS_SETUP_TYPE`, default: `bsn`)
+- `--device-name <name>`, `--device-description <text>`: Optional device metadata
+- `--group <name>`: BSN group name (env: `BS_GROUP_NAME`, default: `Default`)
+- `--verbose`, `--timeout 30`
+
+**Usage:**
+```bash
+./bin/bsn-render-setup-template --package-name "retail-v1" --network "Production" \
+    templates/DefaultSetupPackageTemplateMaster.json > setup.json
+./bin/bsn-render-setup-template --package-name "retail-v1" template.json | ./bin/bsn-bdeploy-setup-add-raw /dev/stdin
+```
+
 ---
 
-## Device Management (8)
+## Device Management (10)
+
+### bsn-device-find
+Find a registered device by serial number by searching **across all networks** you have
+access to — no `--network` flag needed or accepted. Use this when you don't know which
+network a serial belongs to.
+
+**Flags:**
+- `--serial <serial>`: Device serial number to search for (required)
+- `--verbose`: Show detailed search progress
+- `--json`: Output as JSON
+- `--timeout 30`: Request timeout in seconds
+
+**Usage:**
+```bash
+./bin/bsn-device-find --serial UTD41X000009
+./bin/bsn-device-find --serial UTD41X000009 --json
+```
 
 ### bsn-device-info
 Get real-time BrightSign device information via rDWS.
@@ -360,6 +504,31 @@ Manage local Diagnostic Web Server (DWS) on devices.
 ```bash
 ./bin/bsn-device-ldws-enable --serial BS123456789 --enable
 ./bin/bsn-device-ldws-enable --serial BS123456789 --password mypass
+```
+
+### bsn-device-ldws-password
+Enable local DWS and set/change/clear its password via the cloud, in one call: enable, then
+set password.
+
+**Flags:**
+- `--serial <serial>`: Device serial number (required)
+- `--password <pass>` / `-p`: New DWS password
+- `--old-password <pass>`: Current DWS password (empty if none set)
+- `--enable-only`: Only enable local DWS, don't set a password
+- `--network <name>` / `-n`: Network name
+- `-y`: Skip confirmation prompt
+- `--verbose`, `--json`, `--timeout 30`
+
+Note: unlike the `bsn-rdws-*` family, `--json` here silently skips the confirmation prompt
+on its own (treated as non-interactive) — it does not require `-y` and does not error
+without it.
+
+**Usage:**
+```bash
+./bin/bsn-device-ldws-password --serial BS123456789 -p mypassword
+./bin/bsn-device-ldws-password --serial BS123456789 -p newpass --old-password oldpass
+./bin/bsn-device-ldws-password --serial BS123456789 --enable-only
+./bin/bsn-device-ldws-password --serial BS123456789 -p "" --old-password currentpass   # clear password
 ```
 
 ### bsn-device-list
@@ -483,7 +652,7 @@ List device subscriptions on network.
 
 ---
 
-## Remote DWS Operations (34)
+## Remote DWS Operations (30)
 
 Remote Diagnostic Web Server (rDWS) operations allow you to manage and troubleshoot BrightSign devices remotely.
 
@@ -1050,10 +1219,25 @@ Most examples support flexible network selection:
 - `--debug`: HTTP request/response logging (some examples)
 
 ### Confirmation Prompts
-Destructive operations (delete, reformat, factory reset) require confirmation:
-- Interactive prompt asks for verification
-- Use `--force` or `-y` flag to skip confirmation
-- Useful for automation and scripting
+Destructive/state-changing operations (delete, reformat, reboot, registry writes) require
+confirmation by default — an interactive prompt asks for verification. The flag that skips
+it is **not uniform across commands**; passing the wrong one is a flag-parsing error, not a
+silent no-op:
+
+| Accepts | Commands |
+|---|---|
+| `-y` or `--force` (true aliases) | `bsn-device-delete`, `bsn-group-delete`, `bsn-rdws-reboot`, `bsn-rdws-registry-set` |
+| `--force` only | `bsn-bdeploy-device-delete`, `bsn-bdeploy-setup-delete`, `bsn-rdws-files-delete`, `bsn-regtoken-revoke` |
+| `-y` only | `bsn-device-ldws-enable`, `bsn-device-ldws-password`, `bsn-rdws-firmware-download`, `bsn-rdws-reprovision`, `bsn-rdws-storage-reformat` |
+| no skip flag at all | `bsn-device-group-change` — assigning an unknown group name blocks on an interactive y/N prompt with no way to bypass it |
+
+Several of the commands above also **require** the skip-confirmation flag whenever `--json`
+is set, since they cannot show an interactive prompt in that mode: `bsn-rdws-reboot`,
+`bsn-rdws-registry-set`, `bsn-rdws-reprovision`, `bsn-rdws-storage-reformat`,
+`bsn-rdws-firmware-download`, and `bsn-rdws-files-delete`.
+
+Useful for automation and scripting — but check this table (or `--help`) before scripting a
+command you haven't used.
 
 ### Authentication
 All examples use OAuth2 Client Credentials flow:

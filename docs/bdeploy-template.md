@@ -282,5 +282,5 @@ This affects two operations:
 2. **Reading setups** -- `GetSetupRecord` (struct-based) drops firmware entries
    from the response. Use `GetSetupRecordRaw` instead.
 
-The raw JSON path (`render-setup-template` -> `bdeploy-add-setup-raw` ->
-`bdeploy-get-setup`) preserves every field end-to-end.
+The raw JSON path (`bsn-render-setup-template` -> `bsn-bdeploy-setup-add-raw` ->
+`bsn-bdeploy-setup-get`) preserves every field end-to-end.

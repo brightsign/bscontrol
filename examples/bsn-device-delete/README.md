@@ -311,7 +311,7 @@ done
 - `list-devices` - List all devices to find serial numbers/IDs
 - `device-info` - Get detailed device information
 - `device-change-group` - Move devices between groups
-- `bdeploy-delete-device` - Delete from B-Deploy provisioning system
+- `bsn-bdeploy-device-delete` - Delete from B-Deploy provisioning system
 
 ## API Reference
 

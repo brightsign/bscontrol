@@ -160,11 +160,11 @@ pass.
    in that case. Applied at `Do`, `PostForm`, and `PostFormWithAuth`, each of
    which calls `SetResult` and can genuinely hit this ambiguity (verified with
    a failing-then-passing test at each). `GetBytesWithAuth` sets no `Result` —
-   confirmed by test that an unparseable error body there does not make resty
-   return `err != nil` at all (it falls through to the existing
-   `handleAPIError` path with a zero-valued error struct) — so the helper is
-   applied there only for defensive consistency, not because a bug was
-   reproduced.
+   verified with a one-off debug script (not a persisted test) that an
+   unparseable error body there does not make resty return `err != nil` at
+   all (it falls through to the existing `handleAPIError` path with a
+   zero-valued error struct) — so the helper is applied there only for
+   defensive consistency, not because a bug was reproduced.
 
 2. **`.token` ignored** (item 2): add `.token` to `.gitignore`.
 

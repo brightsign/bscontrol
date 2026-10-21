@@ -38,8 +38,8 @@ The cloud's inventory view of registered players.
 | `bsn-device-downloads` | View content downloads on devices. |
 | `bsn-device-delete` | Delete devices from BrightSign Control (destructive; `--force` or `-y`, true aliases). |
 | `bsn-device-group-change` | Change a device's group assignment. No `--network` flag — set `BS_NETWORK` in the environment. Assigning to a group name that doesn't already exist blocks on an interactive y/N prompt with **no flag to skip it** — don't use an unverified group name in a script. |
-| `bsn-device-ldws-enable` | Get / enable / disable a device's local Diagnostic Web Server via the cloud (`-y` to skip the enable/disable confirmation). |
-| `bsn-device-ldws-password` | Enable local DWS and set/change/clear its password via the cloud (`-y` to skip confirmation). |
+| `bsn-device-ldws-enable` | Get / enable / disable a device's local Diagnostic Web Server via the cloud (`-y` to skip the enable/disable confirmation). Unlike the `bsn-rdws-*` family, `--json` alone silently skips the prompt too — no error, no `-y` required. |
+| `bsn-device-ldws-password` | Enable local DWS and set/change/clear its password via the cloud (`-y` to skip confirmation). Same `--json`-silently-skips-prompt behavior as `bsn-device-ldws-enable`. |
 
 ## Groups (3)
 

@@ -37,9 +37,9 @@ flowchart TB
 
 | System | Base URL | Purpose | bscontrol examples |
 |--------|----------|---------|-------------------|
-| **Content REST** | `https://api.bsn.cloud/2022/06/REST/Content` | List / get / delete / folders / tags / permissions. **No upload endpoint.** | `main-content-list`, `main-content-delete`, `main-content-download` |
-| **Upload** | `https://api.bsn.cloud/Upload/2019/03/REST` | Push file bytes into the content library. Separate host path, older API version, chunked session protocol. | `main-content-upload` |
-| **rDWS** | player-local | Files on a specific player's storage. A different API entirely. | `rdws-files-*` |
+| **Content REST** | `https://api.bsn.cloud/2022/06/REST/Content` | List / get / delete / folders / tags / permissions. **No upload endpoint.** | none — bscontrol has no CLI wrapper for content list/get/delete; use the raw API as described below |
+| **Upload** | `https://api.bsn.cloud/Upload/2019/03/REST` | Push file bytes into the content library. Separate host path, older API version, chunked session protocol. | none — no CLI wrapper; see [What BSN actually needs](#5-what-bsn-actually-needs-the-undocumented-payload) for the raw payload |
+| **rDWS** | player-local | Files on a specific player's storage. A different API entirely. | `bsn-rdws-files-list`, `-upload`, `-delete`, `-rename`, `-create-folder` |
 
 Two facts that follow from this split:
 

@@ -52,20 +52,20 @@ These work alongside the existing environment variables:
 
 ## Usage by Example Programs
 
-Each `bdeploy-*` example supports these variables as follows:
+Each `bsn-bdeploy-*` example supports these variables as follows:
 
 | Example | `--package-name` / `BS_PACKAGE_NAME` | `--device-name` / `BS_DEVICE_NAME` | `--device-description` / `BS_DEVICE_DESCRIPTION` |
 |---|---|---|---|
-| `bdeploy-add-setup` | required (template mode) | optional | optional |
-| `bdeploy-list-setups` | optional (filter) | -- | -- |
-| `bdeploy-get-setup` | optional (lookup) | -- | -- |
-| `bdeploy-update-setup` | optional (update field) | -- | -- |
-| `bdeploy-delete-setup` | optional (lookup) | -- | -- |
-| `bdeploy-associate` | optional (lookup) | optional | -- |
+| `bsn-bdeploy-setup-add` | required (template mode) | optional | optional |
+| `bsn-bdeploy-setup-list` | optional (filter) | -- | -- |
+| `bsn-bdeploy-setup-get` | optional (lookup) | -- | -- |
+| `bsn-bdeploy-setup-update` | optional (update field) | -- | -- |
+| `bsn-bdeploy-setup-delete` | optional (lookup) | -- | -- |
+| `bsn-bdeploy-device-associate` | optional (lookup) | optional | -- |
 
-### Template Mode (`bdeploy-add-setup`)
+### Template Mode (`bsn-bdeploy-setup-add`)
 
-The `bdeploy-add-setup` example supports two modes:
+The `bsn-bdeploy-setup-add` example supports two modes:
 
 **Template mode** (new) -- renders `setups/setup-template.json` with values from flags/env:
 

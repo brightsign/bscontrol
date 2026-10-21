@@ -15,7 +15,7 @@ All commands assume `BS_CLIENT_ID`, `BS_SECRET`, and `BS_NETWORK` are already se
 
 ## 2. Test Environment Variable Resolution
 
-### `bdeploy-list-setups` -- filter by `BS_PACKAGE_NAME`
+### `bsn-bdeploy-setup-list` -- filter by `BS_PACKAGE_NAME`
 
 ```bash
 # Via flag (existing behavior, renamed)
@@ -32,7 +32,7 @@ unset BS_PACKAGE_NAME
 
 All three should produce the same filtered output.
 
-### `bdeploy-get-setup` -- lookup by `BS_PACKAGE_NAME`
+### `bsn-bdeploy-setup-get` -- lookup by `BS_PACKAGE_NAME`
 
 ```bash
 # Via new alias
@@ -45,7 +45,7 @@ All three should produce the same filtered output.
 BS_PACKAGE_NAME="some-package" ./bin/bsn-bdeploy-setup-get
 ```
 
-### `bdeploy-delete-setup` -- lookup by `BS_PACKAGE_NAME`
+### `bsn-bdeploy-setup-delete` -- lookup by `BS_PACKAGE_NAME`
 
 ```bash
 # Dry run: just confirm it finds the setup (will prompt for confirmation)
@@ -55,7 +55,7 @@ BS_PACKAGE_NAME="some-package" ./bin/bsn-bdeploy-setup-get
 BS_PACKAGE_NAME="some-package" ./bin/bsn-bdeploy-setup-delete
 ```
 
-## 3. Test `bdeploy-add-setup` Template Mode
+## 3. Test `bsn-bdeploy-setup-add` Template Mode
 
 ### Template mode with flags
 
@@ -108,7 +108,7 @@ unset BS_PACKAGE_NAME
   --verbose
 ```
 
-## 4. Test `bdeploy-update-setup` with `--package-name` Override
+## 4. Test `bsn-bdeploy-setup-update` with `--package-name` Override
 
 ```bash
 # Flag overrides config file's packageName
@@ -124,7 +124,7 @@ BS_PACKAGE_NAME="env-renamed" ./bin/bsn-bdeploy-setup-update \
   examples/bsn-bdeploy-setup-update/example-config.json
 ```
 
-## 5. Test `bdeploy-associate` with Aliases
+## 5. Test `bsn-bdeploy-device-associate` with Aliases
 
 ```bash
 # New alias flags

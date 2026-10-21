@@ -280,10 +280,10 @@ Use `--verbose` flag to monitor search progress.
 
 ## Related Examples
 
-- `main--devices-list` - List all devices in a specific network
-- `main-device-info` - Get detailed information about a device
-- `main-device-status` - Get status information for a device
-- `bdeploy-find-device` - Find B-Deploy provisioned devices
+- `bsn-device-list` - List all devices in a specific network
+- `bsn-device-info` - Get detailed information about a device
+- `bsn-device-status` - Get status information for a device
+- `bsn-bdeploy-device-find` - Find B-Deploy provisioned devices
 
 ## Troubleshooting
 

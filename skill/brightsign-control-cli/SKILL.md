@@ -148,7 +148,10 @@ Rules that keep scripted use safe and predictable:
   read. Several of these also **require** the skip-confirmation flag whenever `--json` is
   set, since they cannot show an interactive prompt in that mode — `bsn-rdws-reboot`,
   `bsn-rdws-registry-set`, `bsn-rdws-reprovision`, `bsn-rdws-storage-reformat`,
-  `bsn-rdws-firmware-download`, and `bsn-rdws-files-delete`.
+  `bsn-rdws-firmware-download`, and `bsn-rdws-files-delete`. `bsn-device-ldws-enable` and
+  `bsn-device-ldws-password` behave differently from that group: `--json` alone *silently*
+  skips their prompt too, with no error and no `-y` required — don't rely on it erroring to
+  catch a forgotten `-y` the way the `rdws-*` group does.
 - **`bsn-device-group-change` has no skip flag at all.** Assigning a device to a group name
   that doesn't already exist blocks on an interactive y/N prompt with no way to bypass it —
   don't target an unverified group name from a script.

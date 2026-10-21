@@ -28,9 +28,9 @@
 ## Device Subscriptions
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/Subscriptions`
 
-- `[DONE]` `GET /` - Returns a list of device subscriptions (Example: `main-subscriptions-list`)
-- `[DONE]` `GET /Count/` - Retrieves the number of subscription instances on the network (Example: `main-subscription-count`)
-- `[DONE]` `GET /Operations/` - Returns operational permissions granted to roles (Example: `main-subscription-operations`)
+- `[DONE]` `GET /` - Returns a list of device subscriptions (Example: `bsn-subscription-list`)
+- `[DONE]` `GET /Count/` - Retrieves the number of subscription instances on the network (Example: `bsn-subscription-count`)
+- `[DONE]` `GET /Operations/` - Returns operational permissions granted to roles (Example: `bsn-subscription-operations`)
 
 ## DeviceWebPages
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/DeviceWebPages`
@@ -53,18 +53,18 @@
 ## Devices
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/Devices`
 
-- `[DONE]` `GET /` - Retrieves a list of devices on the network (Example: `main--devices-list`)
+- `[DONE]` `GET /` - Retrieves a list of devices on the network (Example: `bsn-device-list`)
 - `[NOT-DONE]` `DELETE /` - Removes devices, specified by a filter, from a network
 - `[NOT-DONE]` `GET /Regions/{*locationPath}/` - Returns a region containing all players in the specified path
 - `[NOT-DONE]` `GET /Count/` - Retrieves the number of devices on the network
-- `[DONE]` `GET /{id:int}/` - Return the information for a specified device (Example: `main-device-info`)
-- `[DONE]` `PUT /{id:int}/` - Update the specified device (Example: `main-device-change-group`)
+- `[DONE]` `GET /{id:int}/` - Return the information for a specified device (Example: `bsn-device-info`)
+- `[DONE]` `PUT /{id:int}/` - Update the specified device (Example: `bsn-device-group-change`)
 - `[NOT-DONE]` `PATCH /{id:int}/` - Replaces certain parameters on the specified device
-- `[DONE]` `DELETE /{id:int}/` - Delete the specified device (Example: `main-device-delete`)
-- `[DONE]` `GET /{serial}/` - Return the specified device information (Example: `main-device-info`)
+- `[DONE]` `DELETE /{id:int}/` - Delete the specified device (Example: `bsn-device-delete`)
+- `[DONE]` `GET /{serial}/` - Return the specified device information (Example: `bsn-device-info`)
 - `[NOT-DONE]` `PUT /{serial}/` - Update a specified device
 - `[NOT-DONE]` `PATCH /{serial}/` - Replaces certain parameters on the specified device
-- `[DONE]` `DELETE /{serial}/` - Delete the specified device (Example: `main-device-delete`)
+- `[DONE]` `DELETE /{serial}/` - Delete the specified device (Example: `bsn-device-delete`)
 - `[NOT-DONE]` `GET /{deviceId:int}/Beacons/` - Return array of all beacons for the player
 - `[NOT-DONE]` `GET /{serial}/Beacons/` - Return array of all beacons for the player
 - `[NOT-DONE]` `GET /{deviceId:int}/Beacons/{name}/` - Returns a device beacon associated with specified device
@@ -73,10 +73,10 @@
 - `[NOT-DONE]` `DELETE /{serial}/Beacons/{name}/` - Delete a specified device beacon
 - `[NOT-DONE]` `POST /{id:int}/Beacons/` - Create a device beacon
 - `[NOT-DONE]` `POST /{serial}/Beacons/` - Create a device beacon on a specified device
-- `[DONE]` `GET /{id:int}/Errors/` - Returns a list of errors associated with a specified device (Example: `main-device-errors`)
-- `[DONE]` `GET /{serial}/Errors/` - Returns a list of errors associated with a specified device (Example: `main-device-errors`)
-- `[DONE]` `GET /{id:int}/Downloads/` - Returns the downloads associated with a specified device (Example: `main-device-downloads`)
-- `[DONE]` `GET /{serial}/Downloads/` - Returns a list of downloads carried out by a device (Example: `main-device-downloads`)
+- `[DONE]` `GET /{id:int}/Errors/` - Returns a list of errors associated with a specified device (Example: `bsn-device-errors`)
+- `[DONE]` `GET /{serial}/Errors/` - Returns a list of errors associated with a specified device (Example: `bsn-device-errors`)
+- `[DONE]` `GET /{id:int}/Downloads/` - Returns the downloads associated with a specified device (Example: `bsn-device-downloads`)
+- `[DONE]` `GET /{serial}/Downloads/` - Returns a list of downloads carried out by a device (Example: `bsn-device-downloads`)
 - `[NOT-DONE]` `GET /{deviceid:int}/ScreenShots/` - Returns a list of screenshots uploaded by a specified device
 - `[NOT-DONE]` `GET /{serial}/ScreenShots/` - Returns a list of screenshots uploaded by a specified device
 - `[NOT-DONE]` `GET /ScreenShots/` - Returns a list of screenshots uploaded by a device
@@ -153,14 +153,14 @@
 ## Groups/Regular
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/Groups/Regular`
 
-- `[DONE]` `GET /` - Retrieves a list of groups on the network (Example: `main-device-change-group`)
-- `[DONE]` `POST /` - Creates a group on the network (Example: `main-device-change-group`)
+- `[DONE]` `GET /` - Retrieves a list of groups on the network (Example: `bsn-device-group-change`)
+- `[DONE]` `POST /` - Creates a group on the network (Example: `bsn-device-group-change`)
 - `[NOT-DONE]` `DELETE /` - Removes groups, specified by a filter, from a network
 - `[NOT-DONE]` `GET /Count/` - Returns the number of groups on the network
-- `[DONE]` `GET /{id:int}/` - Returns a specified group (Example: `main-group-info`)
-- `[DONE]` `PUT /{id:int}/` - Updates the specified group (Example: `main-group-update`)
+- `[DONE]` `GET /{id:int}/` - Returns a specified group (Example: `bsn-group-info`)
+- `[DONE]` `PUT /{id:int}/` - Updates the specified group (Example: `bsn-group-update`)
 - `[NOT-DONE]` `PATCH /{id:int}/` - Applies a sequence of changes to a specific group entity
-- `[DONE]` `DELETE /{id:int}/` - Removes the specified group (Example: `main-group-delete`)
+- `[DONE]` `DELETE /{id:int}/` - Removes the specified group (Example: `bsn-group-delete`)
 - `[NOT-DONE]` `GET /{name}/` - Returns a specified group
 - `[NOT-DONE]` `PUT /{name}/` - Updates a specified group
 - `[NOT-DONE]` `PATCH /{name}/` - Applies a sequence of changes to a specific group entity
@@ -249,9 +249,9 @@
 ## Provisioning
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/Provisioning`
 
-- `[DONE]` `POST /Setups/Tokens/` - Issues a token for player registration in the current network (Example: `main-get-regtoken`)
-- `[DONE]` `GET /Setups/Tokens/{token}/` - Validates a player setup token on the current network (Example: `main-get-regtoken`)
-- `[DONE]` `DELETE /Setups/Tokens/{token}/` - Revokes a player setup token on the current network (Example: `main-revoke-regtoken`)
+- `[DONE]` `POST /Setups/Tokens/` - Issues a token for player registration in the current network (Example: `bsn-regtoken-get`)
+- `[DONE]` `GET /Setups/Tokens/{token}/` - Validates a player setup token on the current network (Example: `bsn-regtoken-get`)
+- `[DONE]` `DELETE /Setups/Tokens/{token}/` - Revokes a player setup token on the current network (Example: `bsn-regtoken-revoke`)
 
 ## Roles
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/Roles`
@@ -393,42 +393,42 @@
 
 ## Information Endpoints
 
-- `[DONE]` `GET /info/` - Retrieves general information about the player (Example: `rdws-info`)
-- `[DONE]` `GET /time/` - Retrieves the date and time configured on the player (Example: `rdws-time`)
-- `[DONE]` `PUT /time/` - Sets the date/time on the player (Example: `rdws-time-set`)
-- `[DONE]` `GET /health/` - Retrieves the current status of the player (Example: `rdws-health`)
+- `[DONE]` `GET /info/` - Retrieves general information about the player (Example: `bsn-rdws-info`)
+- `[DONE]` `GET /time/` - Retrieves the date and time configured on the player (Example: `bsn-rdws-time-get`)
+- `[DONE]` `PUT /time/` - Sets the date/time on the player (Example: `bsn-rdws-time-set`)
+- `[DONE]` `GET /health/` - Retrieves the current status of the player (Example: `bsn-rdws-health`)
 
 ## Files Endpoints
 
-- `[DONE]` `GET /files/{:path}/` - Lists directories and/or files in a path (Example: `rdws-files-list`)
-- `[DONE]` `PUT /files/{:path}` - Uploads a new file or folder to player storage (Examples: `rdws-files-upload`, `rdws-files-create-folder`)
-- `[DONE]` `POST /files/{:path}/` - Renames a file in the specified path (Example: `rdws-files-rename`)
-- `[DONE]` `DELETE /files/{:path}/` - Deletes a file from player storage (Example: `rdws-files-delete`)
+- `[DONE]` `GET /files/{:path}/` - Lists directories and/or files in a path (Example: `bsn-rdws-files-list`)
+- `[DONE]` `PUT /files/{:path}` - Uploads a new file or folder to player storage (Examples: `bsn-rdws-files-upload`, `bsn-rdws-files-create-folder`)
+- `[DONE]` `POST /files/{:path}/` - Renames a file in the specified path (Example: `bsn-rdws-files-rename`)
+- `[DONE]` `DELETE /files/{:path}/` - Deletes a file from player storage (Example: `bsn-rdws-files-delete`)
 
 ## Control Endpoints
 
-- `[DONE]` `PUT /control/reboot/` - Reboots the player (with optional crash report, factory reset, or disable autorun) (Example: `rdws-reboot`)
-- `[DONE]` `GET /control/dws-password/` - Retrieves information about current local DWS password (Example: `rdws-dws-password`)
-- `[DONE]` `PUT /control/dws-password/` - Sets a new password for local DWS (Example: `rdws-dws-password`)
-- `[DONE]` `GET /control/local-dws/` - Retrieves current state of local DWS (Example: `rdws-local-dws`)
-- `[DONE]` `PUT /control/local-dws/` - Enables or disables local DWS (Example: `rdws-local-dws`)
+- `[DONE]` `PUT /control/reboot/` - Reboots the player (with optional crash report, factory reset, or disable autorun) (Example: `bsn-rdws-reboot`)
+- `[DONE]` `GET /control/dws-password/` - Retrieves information about current local DWS password (Example: `bsn-rdws-dws-password`)
+- `[DONE]` `PUT /control/dws-password/` - Sets a new password for local DWS (Example: `bsn-rdws-dws-password`)
+- `[DONE]` `GET /control/local-dws/` - Retrieves current state of local DWS (Example: `bsn-rdws-local-dws`)
+- `[DONE]` `PUT /control/local-dws/` - Enables or disables local DWS (Example: `bsn-rdws-local-dws`)
 
 ## Diagnostics Endpoints
 
-- `[DONE]` `GET /diagnostics/` - Runs network diagnostics on the player (Example: `rdws-diagnostics`)
-- `[DONE]` `GET /diagnostics/dns-lookup/{:domain_name}/` - Tests name resolution on specified DNS address (Example: `rdws-dns-lookup`)
-- `[DONE]` `GET /diagnostics/ping/{:domain_name}/` - Pings specified IP or DNS address on local network (Example: `rdws-ping`)
-- `[DONE]` `GET /diagnostics/trace-route/{:domain_name}/` - Performs trace-route diagnostic on specified IP or DNS address (Example: `rdws-traceroute`)
-- `[DONE]` `GET /diagnostics/network-configuration/{:interface}/` - Retrieves network-interface settings (Example: `rdws-network-config`)
-- `[DONE]` `PUT /diagnostics/network-configuration/{:interface}/` - Applies test network configuration (Example: `rdws-network-config`)
-- `[DONE]` `GET /diagnostics/network-neighborhood/` - Retrieves information about player's network neighborhood (Example: `rdws-network-neighborhood`)
-- `[DONE]` `GET /diagnostics/packet-capture/` - Gets current status of packet capture operation (Example: `rdws-packet-capture`)
-- `[DONE]` `POST /diagnostics/packet-capture/` - Starts a packet capture operation (Example: `rdws-packet-capture`)
-- `[DONE]` `DELETE /diagnostics/packet-capture/` - Stops a packet capture operation (Example: `rdws-packet-capture`)
-- `[DONE]` `GET /diagnostics/telnet/` - Get telnet information (enabled status and port number) (Example: `rdws-telnet`)
-- `[DONE]` `PUT /diagnostics/telnet/` - Enable/disable telnet on the player (Example: `rdws-telnet`)
-- `[DONE]` `GET /diagnostics/ssh/` - Returns SSH information (enabled status and port number) (Example: `rdws-ssh`)
-- `[DONE]` `PUT /diagnostics/ssh/` - Enable/disable SSH on the player (Example: `rdws-ssh`)
+- `[DONE]` `GET /diagnostics/` - Runs network diagnostics on the player (Example: `bsn-rdws-diagnostics`)
+- `[DONE]` `GET /diagnostics/dns-lookup/{:domain_name}/` - Tests name resolution on specified DNS address (Example: `bsn-rdws-dns-lookup`)
+- `[DONE]` `GET /diagnostics/ping/{:domain_name}/` - Pings specified IP or DNS address on local network (Example: `bsn-rdws-ping`)
+- `[DONE]` `GET /diagnostics/trace-route/{:domain_name}/` - Performs trace-route diagnostic on specified IP or DNS address (Example: `bsn-rdws-traceroute`)
+- `[DONE]` `GET /diagnostics/network-configuration/{:interface}/` - Retrieves network-interface settings (Example: `bsn-rdws-network-config`)
+- `[DONE]` `PUT /diagnostics/network-configuration/{:interface}/` - Applies test network configuration (Example: `bsn-rdws-network-config`)
+- `[DONE]` `GET /diagnostics/network-neighborhood/` - Retrieves information about player's network neighborhood (Example: `bsn-rdws-network-neighborhood`)
+- `[DONE]` `GET /diagnostics/packet-capture/` - Gets current status of packet capture operation (Example: `bsn-rdws-packet-capture`)
+- `[DONE]` `POST /diagnostics/packet-capture/` - Starts a packet capture operation (Example: `bsn-rdws-packet-capture`)
+- `[DONE]` `DELETE /diagnostics/packet-capture/` - Stops a packet capture operation (Example: `bsn-rdws-packet-capture`)
+- `[DONE]` `GET /diagnostics/telnet/` - Get telnet information (enabled status and port number) (Example: `bsn-rdws-telnet`)
+- `[DONE]` `PUT /diagnostics/telnet/` - Enable/disable telnet on the player (Example: `bsn-rdws-telnet`)
+- `[DONE]` `GET /diagnostics/ssh/` - Returns SSH information (enabled status and port number) (Example: `bsn-rdws-ssh`)
+- `[DONE]` `PUT /diagnostics/ssh/` - Enable/disable SSH on the player (Example: `bsn-rdws-ssh`)
 
 ## Display Control Endpoints
 *For Moka displays with built-in BrightSign players, BOS 9.0.189+*
@@ -462,21 +462,21 @@
 
 ## Storage & Provisioning Endpoints
 
-- `[DONE]` `DELETE /storage/{:device_name}/` - Reformats specified storage device (Example: `rdws-reformat-storage`)
-- `[DONE]` `GET /re-provision/` - Re-provisions the player with B-Deploy/Provisioning setup (Example: `rdws-reprovision`)
-- `[DONE]` `POST /snapshot/` - Takes a screenshot and saves to storage (Example: `rdws-snapshot`)
-- `[DONE]` `PUT /custom/` - Sends custom data to player via UDP port 5000 (Example: `rdws-custom-data`)
-- `[DONE]` `GET /download-firmware/` - Downloads and applies firmware update (Example: `rdws-firmware-download`)
+- `[DONE]` `DELETE /storage/{:device_name}/` - Reformats specified storage device (Example: `bsn-rdws-storage-reformat`)
+- `[DONE]` `GET /re-provision/` - Re-provisions the player with B-Deploy/Provisioning setup (Example: `bsn-rdws-reprovision`)
+- `[DONE]` `POST /snapshot/` - Takes a screenshot and saves to storage (Example: `bsn-rdws-snapshot`)
+- `[DONE]` `PUT /custom/` - Sends custom data to player via UDP port 5000 (Example: `bsn-rdws-custom-data`)
+- `[DONE]` `GET /download-firmware/` - Downloads and applies firmware update (Example: `bsn-rdws-firmware-download`)
 
 ## Registry Endpoints
 
-- `[DONE]` `GET /registry/` - Returns player registry dump (Example: `rdws-registry-get`)
-- `[DONE]` `GET /registry/:section/:key/` - Returns particular registry section or key value (Example: `rdws-registry-get`)
-- `[DONE]` `PUT /registry/:section/:key/` - Sets value in specified registry section (Example: `rdws-registry-set`)
-- `[DONE]` `DELETE /registry/:section/:key/` - Deletes key-value pair from registry section (Example: `rdws-registry-set`)
-- `[DONE]` `PUT /registry/flush/` - Flushes registry immediately to disk (Example: `rdws-registry-set`)
-- `[DONE]` `GET /registry/recovery_url/` - Retrieves recovery URL from player registry (Example: `rdws-registry-get`)
-- `[DONE]` `PUT /registry/recovery_url/` - Writes new recovery URL to player registry (Example: `rdws-registry-set`)
+- `[DONE]` `GET /registry/` - Returns player registry dump (Example: `bsn-rdws-registry-get`)
+- `[DONE]` `GET /registry/:section/:key/` - Returns particular registry section or key value (Example: `bsn-rdws-registry-get`)
+- `[DONE]` `PUT /registry/:section/:key/` - Sets value in specified registry section (Example: `bsn-rdws-registry-set`)
+- `[DONE]` `DELETE /registry/:section/:key/` - Deletes key-value pair from registry section (Example: `bsn-rdws-registry-set`)
+- `[DONE]` `PUT /registry/flush/` - Flushes registry immediately to disk (Example: `bsn-rdws-registry-set`)
+- `[DONE]` `GET /registry/recovery_url/` - Retrieves recovery URL from player registry (Example: `bsn-rdws-registry-get`)
+- `[DONE]` `PUT /registry/recovery_url/` - Writes new recovery URL to player registry (Example: `bsn-rdws-registry-set`)
 
 ## Remoteview Endpoints
 
@@ -505,11 +505,11 @@
 ## B-Deploy Device Endpoints (v2)
 **Base URL:** `https://provision.bsn.cloud/rest-device/v2/device/`
 
-- `[DONE]` `GET /` - Retrieves device object associated with B-Deploy account (Example: `bdeploy-list-devices`)
-- `[DONE]` `GET /?_id={id}` - Retrieves specific device object by ID (Example: `bdeploy-get-device`)
+- `[DONE]` `GET /` - Retrieves device object associated with B-Deploy account (Example: `bsn-bdeploy-device-list`)
+- `[DONE]` `GET /?_id={id}` - Retrieves specific device object by ID (Example: `bsn-bdeploy-device-get`)
 - `[NOT-DONE]` `POST /` - Adds device object to B-Deploy account
-- `[DONE]` `PUT /?_id={id}` - Modifies device object associated with B-Deploy account (Example: `bdeploy-associate`)
-- `[DONE]` `DELETE /?_id={id}` - Removes device object from B-Deploy account (Example: `bdeploy-delete-device`)
+- `[DONE]` `PUT /?_id={id}` - Modifies device object associated with B-Deploy account (Example: `bsn-bdeploy-device-associate`)
+- `[DONE]` `DELETE /?_id={id}` - Removes device object from B-Deploy account (Example: `bsn-bdeploy-device-delete`)
 - `[NOT-DONE]` `DELETE /?serial={serial}` - Removes device object by serial number
 
 ## B-Deploy Setup Endpoints (v2)
@@ -526,11 +526,11 @@
 ## B-Deploy Setup Endpoints (v3)
 **Base URL:** `https://provision.bsn.cloud/rest-setup/v3/setup/`
 
-- `[DONE]` `GET /` - Returns list of setup records from B-Deploy database (Example: `bdeploy-list-setups`)
-- `[DONE]` `POST /` - Adds device setups to B-Deploy server (Example: `bdeploy-add-setup`)
-- `[DONE]` `PUT /` - Updates existing device setups on B-Deploy server (Example: `bdeploy-update-setup`)
-- `[DONE]` `DELETE /?_id={id}` - Deletes device setup from B-Deploy server (Example: `bdeploy-delete-setup`)
-- `[DONE]` `GET /{_id}/` - Retrieves device setup for specified setup id (Example: `bdeploy-get-setup`)
+- `[DONE]` `GET /` - Returns list of setup records from B-Deploy database (Example: `bsn-bdeploy-setup-list`)
+- `[DONE]` `POST /` - Adds device setups to B-Deploy server (Example: `bsn-bdeploy-setup-add`)
+- `[DONE]` `PUT /` - Updates existing device setups on B-Deploy server (Example: `bsn-bdeploy-setup-update`)
+- `[DONE]` `DELETE /?_id={id}` - Deletes device setup from B-Deploy server (Example: `bsn-bdeploy-setup-delete`)
+- `[DONE]` `GET /{_id}/` - Retrieves device setup for specified setup id (Example: `bsn-bdeploy-setup-get`)
 
 ---
 

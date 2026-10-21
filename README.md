@@ -331,11 +331,26 @@ client, err := bscontrol.New(
 )
 ```
 
+`New()` does **not** read the environment on its own — pass `bscontrol.WithEnv()` to load
+`BS_CLIENT_ID`/`BS_SECRET`/`BS_NETWORK`:
+
+```go
+client, err := bscontrol.New(bscontrol.WithEnv())
+```
+
+Other options:
+
+- `bscontrol.WithTokenSource(ts)` — supply a caller-owned `TokenSource` so the caller
+  owns token acquisition/caching/sharing instead of the SDK's client-credentials flow;
+  credentials are then not required.
+- `client.TokenExpiresAt() time.Time` — read the current access token's expiry without
+  decoding the JWT yourself.
+
 ## Examples
 
 The SDK includes **65 working example programs** demonstrating all functionality. Each example is a standalone CLI tool you can use immediately. Every program is named `bsn-[<subsystem>-]<object>-<verb>` and builds to `bin/<name>`.
 
-See **[examples/README.md](examples/README.md)** for complete documentation of all examples with usage instructions, and the agent skill in **[skills/brightsign-control-cli/](skills/brightsign-control-cli/)** for a decision-oriented command index.
+See **[examples/README.md](examples/README.md)** for complete documentation of all examples with usage instructions, and the agent skill in **[skill/brightsign-control-cli/](skill/brightsign-control-cli/)** for a decision-oriented command index.
 
 ### Example Categories
 
@@ -372,7 +387,7 @@ make build
 
 ## Using with AI Coding Agents
 
-This repo ships an **Agent Skill** at [`skills/brightsign-control-cli/`](skills/brightsign-control-cli/) that teaches a coding agent how to drive these 66 `bsn-*` CLIs — choosing the right command, the shared flag conventions, and multi-step fleet workflows (including joining a fielded player to a network by registry keys, "opt-out" provisioning). It follows the portable **`SKILL.md`** standard (YAML frontmatter + Markdown), so it loads wherever Agent Skills are supported and can be referenced as plain context anywhere else.
+This repo ships an **Agent Skill** at [`skill/brightsign-control-cli/`](skill/brightsign-control-cli/) that teaches a coding agent how to drive these 65 `bsn-*` CLIs — choosing the right command, the shared flag conventions, and multi-step fleet workflows (including joining a fielded player to a network by registry keys, "opt-out" provisioning). It follows the portable **`SKILL.md`** standard (YAML frontmatter + Markdown), so it loads wherever Agent Skills are supported and can be referenced as plain context anywhere else.
 
 Build and install the CLIs first so the agent can run them:
 
@@ -388,10 +403,10 @@ Skills are auto-discovered from `.claude/skills/` (project) or `~/.claude/skills
 ```bash
 # project-scoped (everyone who clones the repo gets it)
 mkdir -p .claude/skills
-ln -s ../../skills/brightsign-control-cli .claude/skills/brightsign-control-cli
+ln -s ../../skill/brightsign-control-cli .claude/skills/brightsign-control-cli
 
 # or personal (available in every project)
-cp -r skills/brightsign-control-cli ~/.claude/skills/
+cp -r skill/brightsign-control-cli ~/.claude/skills/
 ```
 
 ### Cursor
@@ -407,7 +422,7 @@ alwaysApply: false
 ---
 For any task involving BrightSign players, BSN.cloud / BrightSign Control, B-Deploy,
 rDWS, registration tokens, or provisioning, follow the skill at
-skills/brightsign-control-cli/SKILL.md and the files in its references/ directory.
+skill/brightsign-control-cli/SKILL.md and the files in its references/ directory.
 EOF
 ```
 
@@ -419,7 +434,7 @@ Copilot reads repo-wide custom instructions from `.github/copilot-instructions.m
 mkdir -p .github
 printf '%s\n' \
   'For BrightSign player/fleet tasks (BSN.cloud, B-Deploy, rDWS, provisioning), follow' \
-  '`skills/brightsign-control-cli/SKILL.md` and the files in its `references/` directory.' \
+  '`skill/brightsign-control-cli/SKILL.md` and the files in its `references/` directory.' \
   >> .github/copilot-instructions.md
 ```
 
@@ -428,12 +443,12 @@ printf '%s\n' \
 Agents that honor `AGENTS.md` pick up repo conventions from it:
 
 ```bash
-printf '\n## BrightSign CLI tools\nFor BrightSign player/fleet tasks, follow `skills/brightsign-control-cli/SKILL.md`.\n' >> AGENTS.md
+printf '\n## BrightSign CLI tools\nFor BrightSign player/fleet tasks, follow `skill/brightsign-control-cli/SKILL.md`.\n' >> AGENTS.md
 ```
 
 ### Any other agent
 
-The skill is plain Markdown. Point the agent at [`skills/brightsign-control-cli/SKILL.md`](skills/brightsign-control-cli/SKILL.md) (and the `references/` files it links) as context, or register it with a cross-agent skill manager such as skills-mapper (`sm`), which syncs one skill source to Claude Code, Copilot, and others.
+The skill is plain Markdown. Point the agent at [`skill/brightsign-control-cli/SKILL.md`](skill/brightsign-control-cli/SKILL.md) (and the `references/` files it links) as context, or register it with a cross-agent skill manager such as skills-mapper (`sm`), which syncs one skill source to Claude Code, Copilot, and others.
 
 ## Configuration Files
 
@@ -788,7 +803,7 @@ This is an unofficial SDK for BSN.cloud integration.
 - **Version Management**: [docs/versioning.md](docs/versioning.md)
 - **Release Process**: [RELEASING.md](RELEASING.md)
 - **Example Programs Guide**: [examples/README.md](examples/README.md)
-- **Agent Skill (`bsn-*` CLI usage)**: [skills/brightsign-control-cli/](skills/brightsign-control-cli/)
+- **Agent Skill (`bsn-*` CLI usage)**: [skill/brightsign-control-cli/](skill/brightsign-control-cli/)
 - **B-Deploy Template Guide**: [docs/bdeploy-template.md](docs/bdeploy-template.md)
 - **B-Deploy Configuration Reference**: [docs/bdeploy-config-reference.md](docs/bdeploy-config-reference.md)
 - **B-Deploy Device Association**: [docs/bdeploy-association.md](docs/bdeploy-association.md)

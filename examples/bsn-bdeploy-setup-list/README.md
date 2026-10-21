@@ -281,9 +281,9 @@ The B-Deploy API returns a wrapper object:
 
 ## Related Examples
 
-- `bdeploy-add-setup` - Create new B-Deploy setup records
-- `bdeploy-delete-setup` - Delete setup records by setup-id
-- `bdeploy-get-records` - Get setup records with different filtering options
+- `bsn-bdeploy-setup-add` - Create new B-Deploy setup records
+- `bsn-bdeploy-setup-delete` - Delete setup records by setup-id
+- `bsn-bdeploy-setup-list` - Get setup records with different filtering options
 - `associate-player-with-setup` - Associate existing players with setup-ids
 
 ## Related Documentation

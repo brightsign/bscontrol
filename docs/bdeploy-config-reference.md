@@ -1,6 +1,6 @@
 # B-Deploy Setup Configuration Reference
 
-This document describes all available configuration fields for B-Deploy setup records using the `bdeploy-add-setup` command.
+This document describes all available configuration fields for B-Deploy setup records using the `bsn-bdeploy-setup-add` command.
 
 ## Configuration File Format
 
@@ -303,7 +303,7 @@ The `DefaultSetupPackageTemplateMaster.json` template can be used for SFN
 setups by passing `--setup-type sfn` to `render-setup-template`. After
 rendering, manually set the SFN-specific fields (`sfnWebFolderUrl`,
 `sfnUserName`, `sfnPassword`, `sfnEnableBasicAuthentication`) in the output
-JSON before posting via `bdeploy-add-setup-raw`, since these fields are
+JSON before posting via `bsn-bdeploy-setup-add-raw`, since these fields are
 deployment-specific and not templated.
 
 ```bash
