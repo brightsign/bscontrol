@@ -12,3 +12,6 @@ vendor/
 
 # LLM working dir
 .llm/
+
+# Reference material kept out of context (see docs/CLAUDE.md)
+./external
