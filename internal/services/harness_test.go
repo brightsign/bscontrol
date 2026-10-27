@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"net/http"
@@ -69,6 +70,7 @@ func newTestEnv(t *testing.T, handler http.HandlerFunc) *testEnv {
 	env := &testEnv{t: t}
 	env.srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
+		r.Body = io.NopCloser(bytes.NewReader(body)) // the handler may read it again
 		env.mu.Lock()
 		env.reqs = append(env.reqs, recordedRequest{
 			Method:   r.Method,
