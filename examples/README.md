@@ -1,6 +1,6 @@
 # Examples Documentation
 
-This directory contains 65 example programs demonstrating all SDK features. Each builds to `bin/<name>`; names follow `bsn-[<subsystem>-]<object>-<verb>`.
+This directory contains 77 example programs demonstrating all SDK features. Each builds to `bin/<name>`; names follow `bsn-[<subsystem>-]<object>-<verb>`.
 
 ## Quick Start
 
@@ -648,6 +648,40 @@ List device subscriptions on network.
 **Usage:**
 ```bash
 ./bin/bsn-subscription-list
+```
+
+---
+
+## Content, Presentations and Schedules (12)
+
+Twelve small tools for the content library, presentations and group schedules. They share
+conventions: status goes to stderr, the result is JSON on stdout (`--json=false` for a short
+summary), exit code 0 or 1, and the delete tools ask first unless `-y` / `--force` is given. All take
+`--network` / `-n`, `--timeout`, `--verbose`. Details per tool are in [REQUIREMENTS.md](../REQUIREMENTS.md);
+how uploads work is in [docs/content-api.md](../docs/content-api.md).
+
+| Tool | What it does | Key flags |
+|---|---|---|
+| `bsn-content-list` | List library content | `--folder`, `--filter`, `--sort`, `--page-size`, `--marker`, `--all` |
+| `bsn-content-get` | One item's metadata | `--id` |
+| `bsn-content-delete` | Delete by ID or filter | `--id` or `--filter`, `-y`/`--force` |
+| `bsn-content-upload` | Chunked, SHA-1 verified upload | `--file`, `--path`, `--media-type` |
+| `bsn-content-download` | Download a file or thumbnail | `--id`, `--output` (or `-`), `--thumbnail`, `--overwrite` |
+| `bsn-presentation-list` | List presentations | `--filter`, `--sort`, `--all` |
+| `bsn-presentation-get` | One presentation | `--id` or `--name` |
+| `bsn-presentation-create` | Create a presentation | `--name`, `--from-json`, `--device-model`, `--language`, `--status` |
+| `bsn-presentation-delete` | Delete by ID, name or filter | `--id`, `--name` or `--filter`, `-y`/`--force` |
+| `bsn-schedule-list` | A group's schedule | `--group` |
+| `bsn-schedule-add` | Schedule a presentation | `--group`, `--presentation-id`/`--presentation-name`, `--start`, `--duration`, `--days` |
+| `bsn-schedule-delete` | Remove a schedule entry | `--group`, `--id`, `-y`/`--force` |
+
+```bash
+./bin/bsn-content-upload --file pattern.png --path canary
+./bin/bsn-presentation-create --name my-test --device-model XT1144 --language English
+./bin/bsn-schedule-add --group "Lobby displays" --presentation-name my-test
+./bin/bsn-schedule-list --group "Lobby displays"
+./bin/bsn-schedule-delete --group "Lobby displays" --id 31 --force
+./bin/bsn-presentation-delete --name my-test --force
 ```
 
 ---

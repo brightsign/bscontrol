@@ -1,6 +1,6 @@
 # `bsn-*` command index
 
-All 65 command-line programs, grouped by subsystem. Each builds to `bin/<name>` via
+All 77 command-line programs, grouped by subsystem. Each builds to `bin/<name>` via
 `make build`. Run `<name> --help` for exact flags; `examples/README.md` has per-command
 flag detail for most commands (a handful of newer commands aren't in it yet — `--help`
 always works).
@@ -56,6 +56,25 @@ The cloud's inventory view of registered players.
 | `bsn-subscription-list` | List device subscriptions on a network. |
 | `bsn-subscription-count` | Count device subscriptions on a network. |
 | `bsn-subscription-operations` | List subscription operations and permissions. |
+
+## Content library, presentations and schedules (12)
+
+All print JSON to stdout and status to stderr; the delete tools ask first unless `--force` or `-y`.
+
+| Command | Purpose |
+|---|---|
+| `bsn-content-list` | List library content (`--folder`, `--filter`, `--all`). |
+| `bsn-content-get` | One content item's metadata (`--id`). |
+| `bsn-content-delete` | Delete content by `--id` or `--filter` (destructive). |
+| `bsn-content-upload` | Upload a file (`--file`, `--path`, `--media-type`); reuses an identical file already at that path. |
+| `bsn-content-download` | Download a file or `--thumbnail` to `--output` (or `-`). |
+| `bsn-presentation-list` | List presentations. |
+| `bsn-presentation-get` | One presentation by `--id` or `--name`. |
+| `bsn-presentation-create` | Create a presentation (`--name`, or a full request with `--from-json`). |
+| `bsn-presentation-delete` | Delete by `--id`, `--name` or `--filter` (destructive; unschedule first). |
+| `bsn-schedule-list` | A group's scheduled presentations (`--group`). |
+| `bsn-schedule-add` | Schedule a presentation on a group (default all day, every day). |
+| `bsn-schedule-delete` | Remove a schedule entry (`--group`, `--id`; destructive). |
 
 ## Registration and provisioning (3)
 

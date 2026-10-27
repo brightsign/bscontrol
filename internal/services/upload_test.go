@@ -730,6 +730,77 @@ func TestUpload_Readers(t *testing.T) {
 	})
 }
 
+// shrinkAfterHash is a seekable source whose file is truncated between the hash
+// pass and the send pass, as when a file is rewritten mid-upload.
+type shrinkAfterHash struct {
+	data []byte
+	pos  int64
+	cut  bool
+}
+
+func (s *shrinkAfterHash) Read(p []byte) (int, error) {
+	if s.pos >= int64(len(s.data)) {
+		return 0, io.EOF
+	}
+	n := copy(p, s.data[s.pos:])
+	s.pos += int64(n)
+	return n, nil
+}
+
+func (s *shrinkAfterHash) Seek(off int64, whence int) (int64, error) {
+	switch whence {
+	case io.SeekStart:
+		s.pos = off
+		if off > 0 || s.cut {
+			s.cut = true
+			s.data = s.data[:3]
+		}
+	case io.SeekCurrent:
+		s.pos += off
+	case io.SeekEnd:
+		s.pos = int64(len(s.data)) + off
+	}
+	return s.pos, nil
+}
+
+func TestUpload_SourceChangesDuringUpload(t *testing.T) {
+	fake := newFakeUpload(t)
+	env := newTestEnv(t, fake.handler())
+	r := &shrinkAfterHash{data: []byte("0123456789")}
+	_, err := newUpload(env, 4).UploadReader(context.Background(), "a.txt", 10, r, "")
+	if err == nil || !strings.Contains(err.Error(), "failed to read") {
+		t.Fatalf("err = %v, want a read failure", err)
+	}
+	if fake.completeArg != nil {
+		t.Error("complete sent for a file that could not be read")
+	}
+}
+
+func TestUpload_RetryWaitHonoursContext(t *testing.T) {
+	fake := newFakeUpload(t)
+	fake.chunkFailures[0] = -1
+	ctx, cancel := context.WithCancel(context.Background())
+	env := newTestEnv(t, func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/Chunks/") {
+			cancel() // cancel while the chunk fails, before the retry delay elapses
+		}
+		fake.handler()(w, r)
+	})
+	svc := newUpload(env, 4)
+	svc.retryDelay = time.Hour
+	_, err := svc.UploadReader(ctx, "a.txt", 4, strings.NewReader("abcd"), "")
+	if !stderrors.Is(err, context.Canceled) {
+		t.Fatalf("err = %v, want context.Canceled", err)
+	}
+	// The handler may still be finishing the cancelled request, so read under its lock.
+	fake.mu.Lock()
+	tries := fake.chunkTries[0]
+	fake.mu.Unlock()
+	if tries > 1 {
+		t.Errorf("retried %d times despite cancellation", tries)
+	}
+}
+
 func TestUpload_OptionsAndMediaType(t *testing.T) {
 	cases := []struct {
 		name string

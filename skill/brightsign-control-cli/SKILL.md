@@ -17,7 +17,7 @@ description: >-
 
 # BrightSign Control CLI (`bsn-*` tools)
 
-A suite of 65 single-purpose command-line programs for operating BrightSign players and
+A suite of 77 single-purpose command-line programs for operating BrightSign players and
 fleets through **BrightSign Control** (the cloud platform formerly called BSN.cloud,
 including its **B-Deploy** provisioning API and **rDWS** remote-player API). Each program
 does one thing and shares a common flag and auth convention (with the per-command

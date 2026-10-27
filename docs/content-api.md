@@ -37,8 +37,8 @@ flowchart TB
 
 | System | Base URL | Purpose | bscontrol examples |
 |--------|----------|---------|-------------------|
-| **Content REST** | `https://api.bsn.cloud/2022/06/REST/Content` | List / get / delete / folders / tags / permissions. **No upload endpoint.** | none — bscontrol has no CLI wrapper for content list/get/delete; use the raw API as described below |
-| **Upload** | `https://api.bsn.cloud/Upload/2019/03/REST` | Push file bytes into the content library. Separate host path, older API version, chunked session protocol. | none — no CLI wrapper; see [What BSN actually needs](#5-what-bsn-actually-needs-the-undocumented-payload) for the raw payload |
+| **Content REST** | `https://api.bsn.cloud/2022/06/REST/Content` | List / get / delete / folders / tags / permissions. **No upload endpoint.** | `bsn-content-list`, `-get`, `-delete`, `-download` |
+| **Upload** | `https://api.bsn.cloud/Upload/2019/03/REST` | Push file bytes into the content library. Separate host path, older API version, chunked session protocol. | `bsn-content-upload` (payload details in [What BSN actually needs](#5-what-bsn-actually-needs-the-undocumented-payload)) |
 | **rDWS** | player-local | Files on a specific player's storage. A different API entirely. | `bsn-rdws-files-list`, `-upload`, `-delete`, `-rename`, `-create-folder` |
 
 Two facts that follow from this split:
@@ -75,7 +75,7 @@ sequenceDiagram
 ```
 
 In bscontrol this is `authManager.EnsureValid` + `EnsureNetworkSet`, called at the top of every
-content operation (`bscontrol/internal/services/content.go:57-62`).
+content operation (the `ready()` helper in `internal/services/content_helpers.go`, called at the top of every Content, Presentation, Schedule and Upload call, and again per request during a long upload so a mid-upload token refresh re-applies the network).
 
 ---
 
@@ -86,15 +86,15 @@ Base: `https://api.bsn.cloud/2022/06/REST/Content`. Controller:
 
 | Method | Path | Purpose | bscontrol |
 |--------|------|---------|----------|
-| GET | `/Content` | List items (marker-paginated) | `ContentService.List` ✅ |
-| GET | `/Content/Root/{*virtualPath}` | List items in a virtual folder | ❌ |
-| GET | `/Content/Count` | Count (respects `filter`) | `GetCount` ✅ |
+| GET | `/Content` | List items (marker-paginated) | `List`, `ListAll` ✅ |
+| GET | `/Content/Root/{*virtualPath}` | List items in a virtual folder | `ListFolder` ✅ |
+| GET | `/Content/Count` | Count (respects `filter`) | `GetCount` ✅ (takes no filter) |
 | GET | `/Content/{id}` | Get metadata (JSON/XML) | `GetByID` ✅ |
-| GET | `/Content/{id}` (`Accept: image/*`) | Thumbnail bytes, `?maxWidth=`/`?maxHeight=` (default 100×100) | ❌ |
-| POST | `/Content/Root/{*virtualPath}` | Create a folder → `201`, returns `ContentFolder` | ❌ |
-| PUT | `/Content/{id}` | Update metadata (name/description); rejects folders/presentations | ❌ |
-| PATCH | `/Content/{id}` | Partial update (JSON-Patch) | ❌ |
-| GET/POST/DELETE | `/Content/{id}/Tags` | Tag map get/add/remove | ❌ |
+| GET | `/Content/{id}` (`Accept: image/*`) | Thumbnail bytes, `?maxWidth=`/`?maxHeight=` (default 100×100) | `GetThumbnail` ✅ |
+| POST | `/Content/Root/{*virtualPath}` | Create a folder → `201`, returns `ContentFolder` | `CreateFolder` ✅ |
+| PUT | `/Content/{id}` | Update metadata (name/description); rejects folders/presentations | ❌ body shape not documented |
+| PATCH | `/Content/{id}` | Partial update (JSON-Patch) | `Move` ✅ (virtualPath only) |
+| GET/POST/DELETE | `/Content/{id}/Tags` | Tag map get/add/remove | ❌ wire shape not documented |
 | DELETE | `/Content` | Bulk delete by filter (excludes folders) | `Delete` ✅ |
 | DELETE | `/Content/{id}` | Delete one (rejects folders) | `DeleteByID` ✅ |
 | GET | `/Content/Operations` | Operation/permission metadata | ❌ |
@@ -178,7 +178,7 @@ Consequences you can observe from the client:
   not durable across long stalls. (`FileUploadService.cs:1051`)
 
 > **Hash gotcha:** the Content *metadata* model documents `fileHash` as MD5, but the upload engine
-> computes and verifies **SHA-1**. Send SHA-1. bscontrol already does (`upload.go:113`).
+> computes and verifies **SHA-1**. Send SHA-1. bscontrol does (`internal/services/upload.go`).
 
 ### 4.2 The four-step upload flow
 
@@ -313,10 +313,12 @@ client converts a normal POSIX path before sending. (`common.ts:944-953`)
 |---------------|-------------|--------------|
 | `videos/promos` | `\videos\promos\` | `"\\videos\\promos\\"` |
 | (empty) | `\` | `"\\"` |
-| `/videos/` (leading slash) | `\videos` | leading `\` suppressed — a known quirk |
+| `/videos/` (leading slash) | `\videos` | the reference client drops the trailing `\` here (it describes this as a leading-`\` quirk). bscontrol does **not** copy it: see below |
+
+bscontrol's `ToBSNVirtualPath` always emits the canonical `\a\b\` form (leading and trailing `\`, root is `\`), so `/videos/`, `videos` and `\videos\` all become `\videos\`. It also accepts either slash style, drops empty and `.` segments and rejects `..` and control characters. The quirky row above contradicts the "enforced trailing `\`" rule stated just before it, so it is treated as a reference-client bug, not wire behaviour.
 
 In `filter=` query strings the separator is doubled (`\\`) and single quotes are escaped by doubling.
-Root is `\`.
+Root is `\`. bscontrol's `EscapeFilterValue` does both escapes.
 
 ### 5.4 `mediaType` — detected from extension
 
@@ -337,7 +339,9 @@ The client auto-detects from the file extension (`bscGetFileMediaType`, `bsCore/
 | `Auxiliary` | anything else |
 
 Unknown extensions map to `Auxiliary`; in practice the literal `Auto` is essentially never emitted
-by detection. Sending a correct concrete type is safer than sending `Auto`.
+by detection. Sending a correct concrete type is safer than sending `Auto`. bscontrol's
+`DetectMediaType` follows this table (case-insensitive) and never returns `Auto`; you can still ask
+for it, or any other type, with `WithUploadMediaType`.
 
 ### 5.5 `fileThumb`, `tags`, `metadata`, `probeData` — do NOT send these
 
@@ -353,8 +357,9 @@ by detection. Sending a correct concrete type is safer than sending `Auto`.
 
 - Reference client: **512 KiB** chunks, up to **3 concurrent**, `?offset=` query param, raw
   `octet-stream` body. (`uploadFileItem.ts:277, 364-379, 827-845`)
-- bscontrol: **5 MiB** chunks, sequential. Both are valid — the protocol is offset-based, so chunk
-  size and concurrency are the client's choice as long as offsets and total size are correct.
+- bscontrol: **5 MiB** chunks, sequential, each retried up to three times on a retryable failure (an
+  offset write is idempotent, so a repeat is harmless). Both are valid — the protocol is offset-based,
+  so chunk size and concurrency are the client's choice as long as offsets and total size are correct.
 - After the last chunk, **poll** — the server marks chunks `Uploaded` slightly after the POST
   returns. Completing before that yields an incomplete-assembly error.
 
@@ -363,7 +368,9 @@ by detection. Sending a correct concrete type is safer than sending `Auto`.
 The start response may include `matchingFiles`. The client treats an entry as a true duplicate only
 when its `virtualPath` equals the upload's `virtualPath` (BSN already matched on name+size+hash). On
 a match it cancels the upload (`DELETE .../Uploads/{token}/`), reuses the existing `contentId`, and
-sends zero chunk bytes. (`uploadFileItem.ts:922-939`)
+sends zero chunk bytes. (`uploadFileItem.ts:922-939`) bscontrol also requires the matching file's
+`fileName` to equal the upload's, so a hash match under another name is uploaded rather than reused
+under the wrong name. That is stricter than the reference client and can only cost an extra upload.
 
 ---
 
@@ -377,9 +384,15 @@ thumbnail with `Accept: image/*`). To get the actual file:
 
 (`BAConnected/packages/bsn-content-migrator/src/downloadContent.ts:59`)
 
-> bscontrol currently downloads via `GET /Content/{id}/Download` (`content.go:254`). Verify this route
-> against the live API — the reference client uses the two-step `fileUrl` approach above. This is the
-> one place bscontrol's content path diverges from the reference client and should be confirmed.
+> bscontrol uses the two-step approach: `ContentService.Download` / `DownloadTo` read the entity, then
+> fetch its URL. The unverified `GET /Content/{id}/Download` route the first draft used is gone. The
+> bearer token is sent only when the URL is on the BSN API host; a pre-signed storage URL on another
+> host gets no `Authorization` header (S3 rejects a second credential, and the token has no business
+> leaving BSN). Only `http`/`https` URLs are followed.
+>
+> One detail is unconfirmed: this doc names the entity's `fileUrl` as the direct URL, but the entity
+> schema in §3 lists `physicalPath` (an absolute storage URL in practice). bscontrol reads `fileUrl`
+> and falls back to `physicalPath`.
 
 ---
 
@@ -391,30 +404,102 @@ that device's storage. This is a device-local API with nothing to do with the cl
 
 ---
 
-## 8. bscontrol status and discrepancies vs the reference client
+## 8. bscontrol status
 
-**Implemented:** List, Count, GetByID, Delete (bulk + by ID), single-file Upload, Download.
-**Not implemented:** folders (`/Content/Root/...`), tags, permissions, PUT/PATCH update, move/rename,
-thumbnails.
+The Content API is implemented in `internal/services` and exposed on the client as `client.Content`,
+`client.Upload`, `client.Presentations` and `client.Schedules`. This section used to be a discrepancy
+table against a first-draft upload; every row of it is fixed, so what follows is the current state.
 
-Where bscontrol's upload differs from the reference client — worth auditing before relying on it for
-non-video/large files:
+```mermaid
+flowchart LR
+    subgraph sdk["bscontrol.Client"]
+        Content["Content<br/>list, get, delete, download,<br/>folders, move, thumbnails"]
+        Upload["Upload<br/>chunked, SHA-1, dedup"]
+        Pres["Presentations<br/>list, get, create, update, delete"]
+        Sched["Schedules<br/>list, add, delete"]
+        Dev["Devices.GetGroupByName"]
+    end
+    Content --> C["Content REST<br/>2022/06"]
+    Upload --> U["Upload API<br/>2019/03"]
+    Pres --> P["Presentations REST<br/>2022/06"]
+    Sched --> G["Groups/Regular/{name}/schedule"]
+    Dev --> G
+```
 
-| Item | Reference client | bscontrol (`upload.go`) | Risk |
-|------|------------------|------------------------|------|
-| Hash JSON key | `shA1Hash` (cap A) | `sha1Hash` (`:209, 337`) | Works only if server binding is case-insensitive. Align the key. |
-| `fileLastModifiedDate` sentinel | `0001-01-01 00:00:00Z` (space) | `0001-01-01T00:00:00` (T, no Z) (`:208`) | Different literal; confirm the server treats it as "null". |
-| `virtualPath` | backslash form `\videos\` | passed through as given (e.g. `/videos/`) | Forward-slash paths may not resolve to the same folder. Convert to BSN backslash form. |
-| `mediaType` | detected (`Video`, …) | always `Auto` (`:207`) | Server must auto-detect; concrete type is safer. |
-| `tags` | omitted | sends `{}` | Harmless but non-standard. |
-| Download | 2-step via `fileUrl` | `GET /Content/{id}/Download` | Verify route exists. |
+**Implemented:** `ContentService` (`List`, `ListAll`, `ListFolder`, `GetCount`, `GetByID`, `Delete`,
+`DeleteByID`, `Download`, `DownloadTo`, `GetThumbnail`, `CreateFolder`, `Move`), `UploadService`
+(`Upload`, `UploadReader`, `UploadBytes`), `PresentationService` (`List`, `ListAll`, `GetCount`,
+`GetByID`, `GetByName`, `Create`, `Update`, `DeleteByID`, `DeleteByName`, `DeleteByFilter`) and
+`ScheduleService` (`GetGroupSchedule`, `AddScheduledPresentation`, `DeleteScheduledPresentation`).
+Group lookup is the existing `Devices.GetGroupByName`.
 
-The unused `ContentUploadArguments` struct (`types.go:1544`) uses PascalCase keys
-(`FileName`, `SHA1Hash`) that match neither the wire format nor the actual code (which builds a
-camelCase map in `upload.go`). It should either be corrected to the real wire shape and used, or
-removed.
+**Not implemented:** tags and `PUT /Content/{id}` (the spec gives no request/response shape for
+either), permissions and operations, renaming a file (only the virtual path can be moved), the update,
+web-page and web-page-asset upload flows, multi-file upload sessions, concurrent chunks.
 
----
+### What changed from the first draft
+
+| Item | First draft (ported from gopurple) | Now |
+|------|------------------------------------|-----|
+| Hash JSON key | `sha1Hash` | `shA1Hash`, lowercase hex SHA-1 |
+| `fileLastModifiedDate` | `0001-01-01T00:00:00` on both calls | `0001-01-01 00:00:00Z` on start, the real `T` ISO date on complete (file mtime for `Upload`, else now) |
+| `virtualPath` | passed through (`/videos/`) | `ToBSNVirtualPath`: `\videos\` |
+| `mediaType` | always `Auto` | detected from the extension (`Auxiliary` if unknown); `WithUploadMediaType` overrides |
+| `tags` | sent as `{}` | not sent |
+| Start hash | empty string, real hash only on complete | real hash on start as well, so BSN's duplicate match can work |
+| Download | `GET /Content/{id}/Download` | two-step via the entity's URL |
+| After the last chunk | polled up to 60 x 5 s, on overall state only | polls until the state or every chunk run is `Uploaded` (500 ms, 2 min), then completes |
+| Dedup | ignored `matchingFiles` | true duplicate (same name and virtual path) is cancelled and reused with no bytes sent |
+| Upload types | PascalCase `ContentUploadArguments` that matched nothing | `ContentUploadArguments` with the real wire keys, used by the code |
+| Memory | whole file buffered | seekable sources (files, `bytes.Reader`) are hashed then streamed chunk by chunk |
+| Output | printed progress to stdout | silent; `WithUploadProgress` callback instead |
+| Errors | re-wrapped as `APIError{0}` with the message flattened to text | `%w`-wrapped, so `IsAuthenticationError`, `IsRetryableError` and `errors.As(*APIError)` still work |
+
+### Upload, as bscontrol runs it
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant U as UploadService
+    participant B as BSN Upload API
+    App->>U: Upload(file, "videos/promos")
+    Note over U: validate, ToBSNVirtualPath, detect mediaType,<br/>stream file through SHA-1
+    U->>B: POST /Sessions/None/Uploads/ (shA1Hash, null date sentinel)
+    B-->>U: uploadToken, matchingFiles?
+    alt same name and virtual path already there
+        U->>B: DELETE .../{token}/ (best effort)
+        U-->>App: existing contentId, Deduplicated=true
+    else new file
+        loop each 5 MiB chunk
+            U->>B: POST .../Chunks/?offset=N (retry x3 if retryable)
+        end
+        loop until Uploaded, a failure state, or timeout
+            U->>B: GET .../{token}/
+        end
+        U->>B: PUT .../{token}/ (real date, uploadToken)
+        B-->>U: Verified/Completed + contentId
+        U-->>App: UploadResponse
+    end
+```
+
+A `Corrupted` state on complete means the assembled file's SHA-1 did not match: the error is an
+`AppError` with code `upload_corrupted`. Other failures: `upload_failed` (a terminal state:
+Corrupted, Cancelled, Terminated or Collected while polling), `upload_timeout` (never reached
+`Uploaded`; the details name the last state), `upload_no_token`, `upload_no_content_id`. Empty files
+are refused up front.
+
+### Open points
+
+- **Zero-byte files** are rejected client-side; BSN's behaviour for them is undocumented.
+- **`Stopped`, `Queued` and `Unknown`** upload states are treated as "keep polling", not failure.
+  `Collected` is treated as failure.
+- **Download URL**: `fileUrl` vs `physicalPath`, see §6.
+- **Count and bulk-delete responses** are decoded whether the service sends a bare number or an
+  object, because the spec does not say which.
+- **Chunk size** is 5 MiB, not the reference client's 512 KiB. Both are valid; nothing here has been
+  load-tested against production.
+- The schedule path uses lowercase `schedule/`, as gopurple does; `all-apis.md` writes `Schedule/`.
+  The service routes case-insensitively.
 
 ## References
 
@@ -433,10 +518,11 @@ removed.
 
 **bscontrol:**
 - `internal/services/upload.go` — session-based chunked upload
-- `internal/services/content.go` — Content REST client
-- `internal/types/types.go:1481+` — content/upload structs
+- `internal/services/content.go`, `content_helpers.go` — Content REST client, virtual paths, media types
+- `internal/services/presentations.go`, `schedules.go` — presentations and group schedules
+- `internal/types/content.go`, `presentation.go`, `bsntime.go` — wire types
 - `docs/all-apis.md` — endpoint inventory with SDK coverage status
 
 ---
 
-*Last updated: 2026-08-18.*
+*Last updated: 2026-10-27.*
