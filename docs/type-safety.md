@@ -157,6 +157,52 @@ func compareScreenshots(a, b *bscontrol.SnapshotResponse) bool {
 }
 ```
 
+### Content, Presentation and Schedule Types
+
+The content library, presentations and group schedules are fully typed too:
+
+- **ContentFile**, **ContentFileList**, **ContentFileCount**, **ContentDeleteResult** - library items
+- **ContentUploadArguments**, **ContentUploadStatus**, **UploadState**, **UploadChunkStatus**,
+  **UploadMatchingFile**, **UploadResponse**, **UploadProgress** - the upload protocol
+- **Presentation**, **PresentationList**, **PresentationCreateRequest**, **PresentationFileRef**,
+  **PresentationFile**, **PresentationAutorun**, **PresentationScreenSettings** - presentations
+- **ScheduledPresentation**, **ScheduledPresentationList** - group schedules
+- **BSNTime** - a timestamp that accepts every date spelling BSN.cloud mixes
+
+The media types and upload states are constants (`MediaTypeVideo`, `UploadStateVerified`, ...), and
+errors keep their type through the service wrapping, so `IsAuthenticationError`, `IsRetryableError`
+and `errors.As(err, &apiErr)` all work.
+
+#### Example: Upload, Create, Schedule
+
+```go
+ctx := context.Background()
+
+contentID, err := client.Upload.UploadBytes(ctx, "pattern.png", png)
+if err != nil {
+    return err
+}
+
+pres, err := client.Presentations.Create(ctx, &bscontrol.PresentationCreateRequest{
+    Name:        "my-test",
+    DeviceModel: "XT1144",
+    Files: []bscontrol.PresentationFile{
+        {Type: "Media", ID: contentID, Name: "pattern.png", MediaType: bscontrol.MediaTypeImage},
+    },
+})
+if err != nil {
+    return err
+}
+
+sched, err := client.Schedules.AddScheduledPresentation(ctx, "Lobby displays", &bscontrol.ScheduledPresentation{
+    PresentationID: pres.ID,
+    IsRecurrent:    true,
+    StartTime:      "00:00:00",
+    Duration:       "23:59:59",
+    DaysOfWeek:     bscontrol.DaysOfWeekEveryDay,
+})
+```
+
 ### RDWS Information Types
 
 Access detailed player information from the Remote Diagnostic Web Server:

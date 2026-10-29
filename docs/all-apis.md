@@ -4,7 +4,7 @@
 - **BSN.cloud Main APIs (2022/06)**: 17 service categories, ~280 endpoints
 - **B-Deploy Provisioning APIs**: 3 service categories (v2 and v3), 14 endpoints
 - **Total**: ~294 endpoints
-- **SDK Implementation Status**: 44 endpoints DONE (excluding removed content/presentation/upload)
+- **SDK Implementation Status**: 44 endpoints DONE, plus the Content, Presentations, Upload and group-schedule endpoints listed in [Content, Presentations and Upload](#content-presentations-and-upload) (see [content-api.md](content-api.md))
 
 **Legend:**
 - `[DONE]` - API endpoint implemented in SDK with example CLI
@@ -24,6 +24,47 @@
 - `[NOT-DONE]` `GET /{id:int}/` - Returns the specified autorun plugin on a network
 - `[NOT-DONE]` `PUT /{id:int}/` - Update a specified autorun plugin on a network
 - `[NOT-DONE]` `DELETE /{id:int}/` - Remove a specified autorun plugin from a network
+
+## Content, Presentations and Upload
+
+The content library, presentations and the byte-pipe Upload API. How they fit together, and the
+wire details an upload needs, are in [content-api.md](content-api.md). Group schedules are under
+[Groups/Regular](#groupsregular) below.
+
+**Content** - Base URL: `https://api.bsn.cloud/2022/06/REST/Content` (`client.Content`)
+
+- `[DONE]` `GET /` - Returns a list of content (Example: `bsn-content-list`)
+- `[DONE]` `GET /Root/{*virtualPath}` - Returns the items in a virtual folder (Example: `bsn-content-list --folder`)
+- `[DONE]` `GET /Count/` - Returns the number of content items
+- `[DONE]` `GET /{id:int}/` - Returns one item's metadata (Example: `bsn-content-get`); download reads its URL (Example: `bsn-content-download`)
+- `[DONE]` `GET /{id:int}/` with `Accept: image/*` - Returns the thumbnail (Example: `bsn-content-download --thumbnail`)
+- `[DONE]` `POST /Root/{*virtualPath}` - Creates a folder
+- `[DONE]` `PATCH /{id:int}/` - Moves an item (JSON-Patch replace of `/virtualPath/`)
+- `[DONE]` `DELETE /` - Removes content matching a filter (Example: `bsn-content-delete --filter`)
+- `[DONE]` `DELETE /{id:int}/` - Removes one item (Example: `bsn-content-delete --id`)
+- `[NOT-DONE]` `PUT /{id:int}/` - Updates name/description (request body not documented)
+- `[NOT-DONE]` `GET|POST|DELETE /{id:int}/Tags/` - Tag map (wire shape not documented)
+- `[NOT-DONE]` `GET /Operations/`, `GET|POST|DELETE /{id:int}/Permissions/` - Operations and object permissions
+
+**Upload** - Base URL: `https://api.bsn.cloud/Upload/2019/03/REST` (`client.Upload`)
+
+- `[DONE]` `POST /Sessions/None/Uploads/` - Start an upload (Example: `bsn-content-upload`)
+- `[DONE]` `POST /Sessions/None/Uploads/{token}/Chunks/?offset=N` - Send one chunk
+- `[DONE]` `GET /Sessions/None/Uploads/{token}/` - Upload status
+- `[DONE]` `PUT /Sessions/None/Uploads/{token}/` - Complete the upload
+- `[DONE]` `DELETE /Sessions/None/Uploads/{token}/` - Cancel (used when BSN already holds the file)
+- `[NOT-DONE]` Update, web-page and web-page-asset upload flows, and multi-file sessions
+
+**Presentations** - Base URL: `https://api.bsn.cloud/2022/06/REST/Presentations` (`client.Presentations`)
+
+- `[DONE]` `GET /` - Returns a list of presentations (Example: `bsn-presentation-list`)
+- `[DONE]` `POST /` - Creates a presentation (Example: `bsn-presentation-create`)
+- `[DONE]` `DELETE /` - Removes presentations matching a filter (Example: `bsn-presentation-delete --filter`)
+- `[DONE]` `GET /Count/` - Returns the number of presentations
+- `[DONE]` `GET /{id:int}/`, `GET /{name}/` - Returns one presentation (Example: `bsn-presentation-get`)
+- `[DONE]` `PUT /{id:int}/` - Updates a presentation
+- `[DONE]` `DELETE /{id:int}/`, `DELETE /{name}/` - Removes one presentation (Example: `bsn-presentation-delete`)
+- `[NOT-DONE]` `PATCH`, `/Operations/` and `/Permissions/` routes
 
 ## Device Subscriptions
 **Base URL:** `https://api.bsn.cloud/2022/06/REST/Subscriptions`
@@ -167,14 +208,14 @@
 - `[NOT-DONE]` `DELETE /{name}/` - Removes a specified group
 - `[NOT-DONE]` `GET /{Id:int}/Schedule/` - Returns a list of scheduled presentations in the specified group
 - `[NOT-DONE]` `POST /{Id:int}/Schedule/` - Adds a scheduled presentation to the specified group
-- `[NOT-DONE]` `GET /{name}/Schedule/` - Returns a list of scheduled presentations in the specified group
-- `[NOT-DONE]` `POST /{name}/Schedule/` - Adds a scheduled presentation to the specified group
+- `[DONE]` `GET /{name}/Schedule/` - Returns a list of scheduled presentations in the specified group (Example: `bsn-schedule-list`)
+- `[DONE]` `POST /{name}/Schedule/` - Adds a scheduled presentation to the specified group (Example: `bsn-schedule-add`)
 - `[NOT-DONE]` `GET /{id:int}/Schedule/{scheduledPresentationId:int}/` - Returns the schedule of the specified presentation
 - `[NOT-DONE]` `PUT /{id:int}/Schedule/{scheduledPresentationId:int}/` - Updates the specified scheduled presentation
 - `[NOT-DONE]` `DELETE /{id:int}/Schedule/{scheduledPresentationId:int}/` - Removes a specified scheduled presentation
 - `[NOT-DONE]` `GET /{name}/Schedule/{scheduledPresentationId:int}/` - Returns the schedule of the specified presentation
 - `[NOT-DONE]` `PUT /{name}/Schedule/{scheduledPresentationId:int}/` - Updates the specified scheduled presentation
-- `[NOT-DONE]` `DELETE /{name}/Schedule/{scheduledPresentationId:int}/` - Removes the specified scheduled presentation
+- `[DONE]` `DELETE /{name}/Schedule/{scheduledPresentationId:int}/` - Removes the specified scheduled presentation (Example: `bsn-schedule-delete`)
 - `[NOT-DONE]` `GET /Operations/` - Returns operational permissions granted to roles
 - `[NOT-DONE]` `GET /{id:int}/Permissions/` - Includes object permissions for a given group instance
 - `[NOT-DONE]` `POST /{id:int}/Permissions/` - Adds permissions to the specified group
@@ -570,7 +611,7 @@
 
 ### Overall Summary
 - **Total Endpoints**: ~294
-- **Implemented with Examples**: 44
+- **Implemented with Examples**: 44, plus 12 content/presentation/schedule examples (see above)
 - **Not Implemented**: ~250
 
 ### Example Programs Available
@@ -578,6 +619,7 @@ Working CLI examples covering:
 - **Main API** - Device management (list, info, status, errors, downloads, delete, update, change group)
 - **Main API** - Group management (list, create, info, update, delete)
 - **Main API** - Subscription management (list, count, operations)
+- **Main API** - Content library (list, get, delete, upload, download), presentations (list, get, create, delete) and group schedules (list, add, delete)
 - **Main API** - Token generation and validation
 - **RDWS** - Control operations (reboot, snapshot, reprovision, DWS password, local DWS)
 - **RDWS** - Remote diagnostics (info, time, health, file management)

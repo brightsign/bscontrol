@@ -55,7 +55,7 @@ As the Go team notes, [Go is excellent for building LLM-powered applications](ht
 
 Go compiles to native machine code, delivering [significantly better performance](https://uvik.net/blog/go-vs-python/) than interpreted Python for CPU-bound operations. For an SDK making hundreds of API calls, parsing large responses, and processing device data, this translates to faster execution and lower resource usage.
 
-A comprehensive Go SDK providing type-safe access to BrightSign Network (BSN.cloud) APIs. Includes both the main REST API and Remote Diagnostic Web Server (RDWS) functionality with 65 working example programs.
+A comprehensive Go SDK providing type-safe access to BrightSign Network (BSN.cloud) APIs. Includes both the main REST API and Remote Diagnostic Web Server (RDWS) functionality with 77 working example programs.
 
 ## What It Does
 
@@ -348,7 +348,7 @@ Other options:
 
 ## Examples
 
-The SDK includes **65 working example programs** demonstrating all functionality. Each example is a standalone CLI tool you can use immediately. Every program is named `bsn-[<subsystem>-]<object>-<verb>` and builds to `bin/<name>`.
+The SDK includes **77 working example programs** demonstrating all functionality. Each example is a standalone CLI tool you can use immediately. Every program is named `bsn-[<subsystem>-]<object>-<verb>` and builds to `bin/<name>`.
 
 See **[examples/README.md](examples/README.md)** for complete documentation of all examples with usage instructions, and the agent skill in **[skill/brightsign-control-cli/](skill/brightsign-control-cli/)** for a decision-oriented command index.
 
@@ -360,6 +360,9 @@ See **[examples/README.md](examples/README.md)** for complete documentation of a
 | **Account device management** | 10 | List, find, info, status, errors, downloads, delete, group change, local-DWS |
 | **Group management** | 3 | Group info, updates, deletion |
 | **Subscription management** | 3 | Device subscriptions, counts, operations |
+| **Content library** | 5 | List, get, delete, upload (chunked, deduplicated), download |
+| **Presentations** | 4 | List, get, create, delete |
+| **Group schedules** | 3 | List, add, delete scheduled presentations |
 | **Registration & provisioning** | 3 | Mint/revoke registration tokens, generate a player registration script |
 | **B-Deploy provisioning** | 12 | Setup records, device association, template rendering |
 | **Remote DWS (RDWS)** | 30 | Remote control, diagnostics, files, registry, network, screenshots |
@@ -387,7 +390,7 @@ make build
 
 ## Using with AI Coding Agents
 
-This repo ships an **Agent Skill** at [`skill/brightsign-control-cli/`](skill/brightsign-control-cli/) that teaches a coding agent how to drive these 65 `bsn-*` CLIs — choosing the right command, the shared flag conventions, and multi-step fleet workflows (including joining a fielded player to a network by registry keys, "opt-out" provisioning). It follows the portable **`SKILL.md`** standard (YAML frontmatter + Markdown), so it loads wherever Agent Skills are supported and can be referenced as plain context anywhere else.
+This repo ships an **Agent Skill** at [`skill/brightsign-control-cli/`](skill/brightsign-control-cli/) that teaches a coding agent how to drive these `bsn-*` CLIs — choosing the right command, the shared flag conventions, and multi-step fleet workflows (including joining a fielded player to a network by registry keys, "opt-out" provisioning). It follows the portable **`SKILL.md`** standard (YAML frontmatter + Markdown), so it loads wherever Agent Skills are supported and can be referenced as plain context anywhere else.
 
 Build and install the CLIs first so the agent can run them:
 
@@ -527,6 +530,12 @@ See **[docs/all-apis.md](docs/all-apis.md)** for a comprehensive list of all BSN
 - Get subscription counts
 - Query permissions
 
+✅ **Content, Presentations and Schedules** (see [docs/content-api.md](docs/content-api.md))
+- `client.Content`: list (paged or `ListAll`), folders, get, delete, two-step download, thumbnails, create folder, move
+- `client.Upload`: chunked, SHA-1 verified upload with duplicate detection, streaming from disk
+- `client.Presentations`: list, get by ID or name, create, update, delete by ID, name or filter
+- `client.Schedules`: get, add and remove a group's scheduled presentations
+
 ### What's Not Yet Implemented
 
 See [docs/all-apis.md](docs/all-apis.md) for the complete list of unimplemented endpoints, including:
@@ -538,6 +547,7 @@ See [docs/all-apis.md](docs/all-apis.md) for the complete list of unimplemented 
 - Device web pages
 - Live media feeds
 - Scheduled downloads
+- Content tags and metadata update (the spec does not pin down their wire shape)
 - Tag management
 - User management
 - Web folder management

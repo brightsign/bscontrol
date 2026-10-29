@@ -356,6 +356,82 @@ type (
 
 	// RequestTracer receives one RequestTrace per request the SDK completes.
 	RequestTracer = types.RequestTracer
+
+	// BSNTime is a timestamp as BSN.cloud writes it, tolerant of the several
+	// date spellings the service mixes (RFC 3339, zone-less ISO, space-separated).
+	BSNTime = types.BSNTime
+
+	// ContentFile is an entry in the network's content library (a file, or a
+	// folder when MediaType is "Folder").
+	ContentFile = types.ContentFile
+
+	// ContentFileList is one page of content files.
+	ContentFileList = types.ContentFileList
+
+	// ContentFileCount is the number of content items on the network.
+	ContentFileCount = types.ContentFileCount
+
+	// ContentDeleteResult is the outcome of a bulk content delete by filter.
+	ContentDeleteResult = types.ContentDeleteResult
+
+	// ContentUploadArguments is the body of the Upload API's start and complete
+	// calls.
+	ContentUploadArguments = types.ContentUploadArguments
+
+	// ContentUploadStatus is the Upload API's status object.
+	ContentUploadStatus = types.ContentUploadStatus
+
+	// UploadState is where an upload session is in its life.
+	UploadState = types.UploadState
+
+	// UploadChunkStatus summarises a run of upload chunks that share a state.
+	UploadChunkStatus = types.UploadChunkStatus
+
+	// UploadMatchingFile is an existing library item BSN matched to an upload.
+	UploadMatchingFile = types.UploadMatchingFile
+
+	// UploadResponse is the result of a finished upload.
+	UploadResponse = types.UploadResponse
+
+	// UploadProgress is reported to a WithUploadProgress callback after each chunk.
+	UploadProgress = types.UploadProgress
+
+	// Presentation is a presentation on the network.
+	Presentation = types.Presentation
+
+	// PresentationList is one page of presentations.
+	PresentationList = types.PresentationList
+
+	// PresentationCount is the number of presentations on the network.
+	PresentationCount = types.PresentationCount
+
+	// PresentationCreateRequest is the body for creating or updating a presentation.
+	PresentationCreateRequest = types.PresentationCreateRequest
+
+	// PresentationDeleteResult is the outcome of deleting presentations by filter.
+	PresentationDeleteResult = types.PresentationDeleteResult
+
+	// PresentationFileRef is a file attached to a presentation (project,
+	// autoplay, resources or thumbnail).
+	PresentationFileRef = types.PresentationFileRef
+
+	// PresentationFile is a content item a presentation plays.
+	PresentationFile = types.PresentationFile
+
+	// PresentationAutorun selects the autorun a presentation boots with.
+	PresentationAutorun = types.PresentationAutorun
+
+	// PresentationDeviceWebPage references the device web page a presentation uses.
+	PresentationDeviceWebPage = types.PresentationDeviceWebPage
+
+	// PresentationScreenSettings is the display configuration of a presentation.
+	PresentationScreenSettings = types.PresentationScreenSettings
+
+	// ScheduledPresentation is a presentation scheduled on a group.
+	ScheduledPresentation = types.ScheduledPresentation
+
+	// ScheduledPresentationList is a group's schedule.
+	ScheduledPresentationList = types.ScheduledPresentationList
 )
 
 // Re-export configuration options
@@ -469,6 +545,69 @@ const (
 	RebootTypeDisableAutorun = types.RebootTypeDisableAutorun
 )
 
+// Re-export content constants
+const (
+	// Upload media types (see DetectMediaType for how one is chosen).
+	MediaTypeAuto          = types.MediaTypeAuto
+	MediaTypeText          = types.MediaTypeText
+	MediaTypeImage         = types.MediaTypeImage
+	MediaTypeVideo         = types.MediaTypeVideo
+	MediaTypeAudio         = types.MediaTypeAudio
+	MediaTypeFont          = types.MediaTypeFont
+	MediaTypeStylesheet    = types.MediaTypeStylesheet
+	MediaTypeAuxiliary     = types.MediaTypeAuxiliary
+	MediaTypeWebPage       = types.MediaTypeWebPage
+	MediaTypeDeviceWebPage = types.MediaTypeDeviceWebPage
+	MediaTypeFolder        = types.MediaTypeFolder
+
+	// Upload states.
+	UploadStateUnknown    = types.UploadStateUnknown
+	UploadStateQueued     = types.UploadStateQueued
+	UploadStateStarted    = types.UploadStateStarted
+	UploadStateUploading  = types.UploadStateUploading
+	UploadStateStopped    = types.UploadStateStopped
+	UploadStateUploaded   = types.UploadStateUploaded
+	UploadStateVerified   = types.UploadStateVerified
+	UploadStateCancelled  = types.UploadStateCancelled
+	UploadStateCorrupted  = types.UploadStateCorrupted
+	UploadStateCollected  = types.UploadStateCollected
+	UploadStateTerminated = types.UploadStateTerminated
+	UploadStateCompleted  = types.UploadStateCompleted
+
+	// PresentationNullDate is the date BSN expects on a brand-new presentation.
+	PresentationNullDate = types.PresentationNullDate
+
+	// DaysOfWeekEveryDay is the string form of an every-day schedule.
+	DaysOfWeekEveryDay = types.DaysOfWeekEveryDay
+)
+
+// UploadOption tunes a single upload.
+type UploadOption = services.UploadOption
+
+var (
+	// WithUploadMediaType overrides the media type otherwise detected from the
+	// file extension.
+	WithUploadMediaType = services.WithUploadMediaType
+
+	// WithUploadProgress registers a per-chunk progress callback.
+	WithUploadProgress = services.WithUploadProgress
+
+	// WithUploadModTime sets the modification time recorded on upload completion.
+	WithUploadModTime = services.WithUploadModTime
+
+	// ToBSNVirtualPath converts a path as written by a person ("videos/promos",
+	// "/videos/") into BSN's backslash form (\videos\promos\).
+	ToBSNVirtualPath = services.ToBSNVirtualPath
+
+	// EscapeFilterValue escapes a string for use inside a quoted value of a BSN
+	// filter expression.
+	EscapeFilterValue = services.EscapeFilterValue
+
+	// DetectMediaType picks the upload media type for a file name from its
+	// extension; unknown extensions are Auxiliary.
+	DetectMediaType = services.DetectMediaType
+)
+
 // Re-export error checking functions
 var (
 	// IsAuthenticationError checks if an error is authentication-related.
@@ -500,6 +639,12 @@ type Client struct {
 	RDWS           services.RDWSService
 	Subscriptions  services.SubscriptionService
 	DeviceWebPages services.DeviceWebPageService
+
+	// Content library: metadata/CRUD, the byte pipe, and what uses them.
+	Content       services.ContentService
+	Upload        services.UploadService
+	Presentations services.PresentationService
+	Schedules     services.ScheduleService
 }
 
 // New creates a new BrightSign SDK client with the given configuration options.
@@ -554,6 +699,10 @@ func New(opts ...Option) (*Client, error) {
 		RDWS:           services.NewRDWSService(cfg, httpClient, authManager),
 		Subscriptions:  services.NewSubscriptionService(cfg, httpClient, authManager),
 		DeviceWebPages: services.NewDeviceWebPageService(cfg, httpClient, authManager),
+		Content:        services.NewContentService(cfg, httpClient, authManager),
+		Upload:         services.NewUploadService(cfg, httpClient, authManager),
+		Presentations:  services.NewPresentationService(cfg, httpClient, authManager),
+		Schedules:      services.NewScheduleService(cfg, httpClient, authManager),
 	}
 
 	return client, nil

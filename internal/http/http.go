@@ -2,8 +2,10 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	stderrors "errors"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -167,7 +169,11 @@ func (h *HTTPClient) Do(ctx context.Context, req *Request) error {
 	// Set body
 	if req.Body != nil {
 		request.SetBody(req.Body)
-		request.SetHeader("Content-Type", "application/json")
+		// Default to JSON, but respect a caller-chosen type (the Upload API uses
+		// vendor media types, and JSON-Patch needs application/json-patch+json).
+		if request.Header.Get("Content-Type") == "" {
+			request.SetHeader("Content-Type", "application/json")
+		}
 	}
 
 	// Set result structure
@@ -295,6 +301,55 @@ func (h *HTTPClient) GetBytesWithAuth(ctx context.Context, token, url string) ([
 	}
 
 	return resp.Body(), nil
+}
+
+// maxErrorBody bounds how much of a failed streaming response is read to build
+// an error message.
+const maxErrorBody = 4096
+
+// Stream performs a GET and copies the response body into w without buffering it
+// in memory. It returns the number of bytes written.
+//
+// When token is empty no Authorization header is sent: use that for URLs on
+// another host (a pre-signed storage URL rejects a stray bearer token, and the
+// token should not leave BSN anyway). headers, if non-nil, are added to the
+// request. A non-2xx response becomes the same typed error the other calls
+// return.
+func (h *HTTPClient) Stream(ctx context.Context, token, url string, headers map[string]string, w io.Writer) (int64, error) {
+	request := h.client.R().
+		SetContext(ctx).
+		SetDoNotParseResponse(true)
+	if token != "" {
+		request.SetAuthToken(token)
+	}
+	if headers != nil {
+		request.SetHeaders(headers)
+	}
+
+	resp, err := request.Get(url)
+	if err != nil {
+		return 0, classifyExecuteError(fmt.Sprintf("GET %s", url), resp, err)
+	}
+	body := resp.RawBody()
+	defer body.Close()
+
+	if !resp.IsSuccess() {
+		raw, _ := io.ReadAll(io.LimitReader(body, maxErrorBody))
+		resp.SetBody(raw)
+		var apiError struct {
+			Error            string `json:"error"`
+			ErrorDescription string `json:"error_description"`
+			Details          string `json:"details"`
+		}
+		_ = json.Unmarshal(raw, &apiError) // best effort: handleAPIError falls back to the raw body
+		return 0, h.handleAPIError(resp, &apiError)
+	}
+
+	n, err := io.Copy(w, body)
+	if err != nil {
+		return n, errors.NewNetworkError(fmt.Sprintf("GET %s", url), err)
+	}
+	return n, nil
 }
 
 // Post performs a POST request.
